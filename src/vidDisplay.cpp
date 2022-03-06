@@ -4,8 +4,8 @@
 #include <string>
 
 #include "filter.hpp"
-
 #include "orProcessing.hpp"
+#include "orUtil.hpp"
 #define PI 3.14159265;
 using namespace std;
 

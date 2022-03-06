@@ -1,6 +1,4 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/vidDisplay.dir/src/csv_util.cpp.o"
-  "CMakeFiles/vidDisplay.dir/src/csv_util.cpp.o.d"
   "CMakeFiles/vidDisplay.dir/src/filter.cpp.o"
   "CMakeFiles/vidDisplay.dir/src/filter.cpp.o.d"
   "CMakeFiles/vidDisplay.dir/src/orProcessing.cpp.o"

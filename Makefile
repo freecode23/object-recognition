@@ -129,30 +129,6 @@ vidDisplay/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/build
 .PHONY : vidDisplay/fast
 
-src/csv_util.o: src/csv_util.cpp.o
-.PHONY : src/csv_util.o
-
-# target to build an object file
-src/csv_util.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/src/csv_util.cpp.o
-.PHONY : src/csv_util.cpp.o
-
-src/csv_util.i: src/csv_util.cpp.i
-.PHONY : src/csv_util.i
-
-# target to preprocess a source file
-src/csv_util.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/src/csv_util.cpp.i
-.PHONY : src/csv_util.cpp.i
-
-src/csv_util.s: src/csv_util.cpp.s
-.PHONY : src/csv_util.s
-
-# target to generate assembly for a file
-src/csv_util.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/src/csv_util.cpp.s
-.PHONY : src/csv_util.cpp.s
-
 src/filter.o: src/filter.cpp.o
 .PHONY : src/filter.o
 
@@ -258,9 +234,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... vidDisplay"
-	@echo "... src/csv_util.o"
-	@echo "... src/csv_util.i"
-	@echo "... src/csv_util.s"
 	@echo "... src/filter.o"
 	@echo "... src/filter.i"
 	@echo "... src/filter.s"
