@@ -340,7 +340,7 @@ int main(int argc, char *argv[]) {
         randomColors.push_back(
             cv::Vec3b((rand() & 255), (rand() & 255), (rand() & 255)));
     }
-    imageMode();
-    // videoMode();
+    // imageMode();
+    videoMode();
     // trainingMode();
 }

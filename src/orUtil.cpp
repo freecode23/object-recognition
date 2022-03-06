@@ -25,14 +25,15 @@ vector<int> get_top_N_largest_areas_index(vector<int> areas, int region_num) {
     for (int i = 0; i < areas.size(); ++i) {
         areas_indices.push(std::pair<int, int>(areas[i], i));
     }
-
+    if(region_num > areas.size()){
+        region_num = areas.size();
+    }
     for (int i = 0; i < region_num; i++) {
-        // cout << "index: " << areas_indices.top().second
-        //      << ", area: " << areas_indices.top().first << endl;
+        cout << "index: " << areas_indices.top().second
+             << ", area: " << areas_indices.top().first << endl;
         top_N_largest_areas_indices.push_back(areas_indices.top().second);
         areas_indices.pop();  // remove max
     }
-    cout << "\nafter getTopN --" << endl;
 
     return top_N_largest_areas_indices;
 }

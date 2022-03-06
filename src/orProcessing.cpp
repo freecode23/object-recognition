@@ -234,11 +234,9 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
 
     // 3. filter by area
     // get top 6 largest area by index
-    cout << "before largest area--" << endl;
     out_ids_to_keep = get_top_N_largest_areas_index(areas, max_regions);
-    cout << "after largest area--" << endl; 
-    // 4. filter by centroid
     
+    // 4. filter by centroid
     vector<int> img_center = get_center_coordinates(src);  // image center
     // get single id of interest
     out_id_of_interest = get_id_with_most_center_centroids(
