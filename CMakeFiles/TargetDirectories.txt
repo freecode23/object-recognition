@@ -1,0 +1,3 @@
+/Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles/vidDisplay.dir
+/Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles/edit_cache.dir
+/Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles/rebuild_cache.dir
