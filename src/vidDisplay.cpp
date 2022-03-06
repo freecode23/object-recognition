@@ -1,8 +1,6 @@
 #include <sys/stat.h>
-
 #include <iostream>
 #include <string>
-
 #include "filter.hpp"
 #include "orProcessing.hpp"
 #include "orUtil.hpp"
@@ -162,7 +160,7 @@ void imageMode() {
     cv::Mat dstImage1;
 
     // srcImage1 = cv::imread("res/sample/img4.png", 1);
-    srcImage1 = cv::imread("res/own/own0.png", 1);
+    srcImage1 = cv::imread("res/own/own3.png", 1);
 
     filter op = none;
 
@@ -295,10 +293,6 @@ int trainingMode() {
             srcFrame.copyTo(dstFrame);
         }
 
-    
-
-        
-
         cv::imshow("Video", dstFrame);
 
         // 4. get key strokes
@@ -346,7 +340,7 @@ int main(int argc, char *argv[]) {
         randomColors.push_back(
             cv::Vec3b((rand() & 255), (rand() & 255), (rand() & 255)));
     }
-    // imageMode();
+    imageMode();
     // videoMode();
-    trainingMode();
+    // trainingMode();
 }

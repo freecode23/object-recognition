@@ -8,13 +8,13 @@
 // Sherly Hartono
 //**********************************************************************************************************************
 
-#include "orProcessing.hpp"
+
 
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/utility.hpp>
 #include "orUtil.hpp"
-#include "csv_util.hpp"
+#include "orProcessing.hpp"
 
 using namespace std;
 
@@ -138,6 +138,7 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
                        std::vector<cv::Vec3b> random_colors, int max_regions,
                        bool isColorful, int &out_area,
                        cv::Point &out_centroid_of_interest) {
+
     vector<int> out_ids_to_keep;
     cv::Mat stats;
     cv::Mat out_label;
@@ -215,6 +216,8 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
 void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
                   vector<int> &out_ids_to_keep, int &out_id_of_interest,
                   cv::Mat &out_stats, cv::Point &out_centroid_of_interest) {
+   
+
     // 1. get regions
     out_label.create(src.size(), CV_32S);
     cv::Mat centroids;
@@ -225,22 +228,25 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
     std::vector<int> areas;
     for (int i = 0; i < out_stats.rows; i++) {
         int area = out_stats.at<int>(i, cv::CC_STAT_AREA);  // area
+        cout << area << endl;
         areas.push_back(area);
     }
 
     // 3. filter by area
     // get top 6 largest area by index
+    cout << "before largest area--" << endl;
     out_ids_to_keep = get_top_N_largest_areas_index(areas, max_regions);
-
+    cout << "after largest area--" << endl; 
     // 4. filter by centroid
+    
     vector<int> img_center = get_center_coordinates(src);  // image center
-
     // get single id of interest
     out_id_of_interest = get_id_with_most_center_centroids(
         img_center, centroids, out_ids_to_keep);
     out_centroid_of_interest =
         cv::Point(centroids.at<double>(out_id_of_interest, 0),
                   centroids.at<double>(out_id_of_interest, 1));
+             
 }
 
 /*
@@ -249,6 +255,8 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
 void compute_features(cv::Mat &src, cv::Mat &dst,
                       vector<cv::Vec3b> random_colors, int max_regions,
                       vector<float> &out_features) {
+
+    cout << "compute features" << endl;
     // 1. do segmentation to only get 1 region
     cv::Mat cleaned_img;
     cv::Mat binary_img;

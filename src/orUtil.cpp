@@ -9,27 +9,31 @@
 //**********************************************************************************************************************
 
 #include "orUtil.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/utility.hpp>
 using namespace std;
 
 // 3.1 (print areas of all regions)
-vector<int> get_top_N_largest_areas_index(vector<int> areas, int n) {
+vector<int> get_top_N_largest_areas_index(vector<int> areas, int region_num) {
     vector<int> top_N_largest_areas_indices;
-    std::priority_queue<std::pair<int, int>>
-        areas_indices;  // areas_indices(area, index)
+
+    // areas_indices(area, index)
+    std::priority_queue<std::pair<int, int>> areas_indices;
 
     for (int i = 0; i < areas.size(); ++i) {
         areas_indices.push(std::pair<int, int>(areas[i], i));
     }
-    // cout << "region id with largest area index: " << endl;
-    for (int i = 0; i < n; ++i) {
-        int id_of_max = areas_indices.top().second;
-        // cout << id_of_max << ", area = " << areas_indices.top().first << endl;
-        top_N_largest_areas_indices.push_back(id_of_max);
+
+    for (int i = 0; i < region_num; i++) {
+        // cout << "index: " << areas_indices.top().second
+        //      << ", area: " << areas_indices.top().first << endl;
+        top_N_largest_areas_indices.push_back(areas_indices.top().second);
         areas_indices.pop();  // remove max
     }
+    cout << "\nafter getTopN --" << endl;
+
     return top_N_largest_areas_indices;
 }
 
@@ -79,12 +83,10 @@ vector<int> get_center_coordinates(cv::Mat src) {
 int get_id_with_most_center_centroids(vector<int> &img_center,
                                       cv::Mat centroids,
                                       vector<int> ids_big_area) {
-
-    // cout << "\ncoordinates: " << endl;                                    
+    // cout << "\ncoordinates: " << endl;
     map<int, double> indices_distances;
 
     for (int i = 1; i < ids_big_area.size(); i++) {
-        
         // calc. eucl distance at each centroids of top big n areas
         double x = centroids.at<double>(ids_big_area[i], 0);
         double y = centroids.at<double>(ids_big_area[i], 1);
@@ -182,4 +184,3 @@ void get_contour_of_interest(cv::Mat binary_img,
     int cont_id_of_interest = get_id_with_largest_contour_area(contours);
     out_contour = contours[cont_id_of_interest];
 }
-
