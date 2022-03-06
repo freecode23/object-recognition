@@ -182,21 +182,21 @@ int trainMode() {
 
             
             // save
-            // if (obj == mascara)
-            // can do labelling
-            if (obj == mascara) {
-                // save as an image
-                saved_img_name = getNewFileName();
-                string path_name = "res/own/";
-                cv::imwrite(path_name.append(saved_img_name), dstFrame);
-
+            // get image_filepath
+            
+            saved_img_name = getNewFileName();
+            char *image_filepath = (char *)saved_img_name.data();
+            string path_name = "res/own/";
+            cv::imwrite(path_name.append(saved_img_name), dstFrame);
+            if (obj == mascara)
+            {
                 char label_name[] = "mascara";
-
-                char *cstr = (char *)saved_img_name.data();
-                append_image_data_csv(csv_filepath, cstr, label_name,
+                append_image_data_csv(csv_filepath, image_filepath, label_name,
                                       feature_vec, 0);
                 obj = null;
             }
+
+           
 
             // reset object choice
 
