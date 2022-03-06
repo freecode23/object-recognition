@@ -11,10 +11,11 @@ CPP functions for reading CSV files with a specific format
 The function returns a std::vector of char* for the filenames and a 2D
 std::vector of floats for the data
 */
-#include <vector>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 using namespace std;
+
 
 
 /*

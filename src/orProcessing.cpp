@@ -147,7 +147,7 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
     segmentation(src, max_regions, out_label, out_ids_to_keep,
                  out_id_of_interest, stats, out_centroid_of_interest);
 
-    out_area = stats.at<int>(3, cv::CC_STAT_AREA);  // area
+    out_area = stats.at<int>(out_id_of_interest, cv::CC_STAT_AREA);  // area
     // cout << "region of interest has area: " << out_area << endl;
     // cout << "centroids of interest are: " << out_centroid_of_interest.x << ",
     // "

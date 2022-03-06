@@ -9,28 +9,6 @@
 #define PI 3.14159265;
 using namespace std;
 
-// vector<cv::Vec3b> randomColors;
-// const int maxRegions = 6;
-// enum filter { none, thresh, clean, segment, features, getLabel };
-// enum stuff{glasses, knife,  noodle, mascara, plier};
-
-// string getNewFileName() {
-//     // create file path and name of idx 0
-//     string imgName = "res/own/own";
-//     int fileIdx = 0;
-//     imgName.append(to_string(fileIdx)).append(".png");
-//     struct stat buffer;
-//     bool isFileExist = (stat(imgName.c_str(), &buffer) == 0);
-
-//     while (isFileExist) {
-//         fileIdx += 1;
-//         imgName = "res/own/own";
-//         imgName.append(to_string(fileIdx)).append(".png");
-//         isFileExist = (stat(imgName.c_str(), &buffer) == 0);
-//     }
-//     // file does not exists retunr this name
-//     return imgName;
-// }
 
 int videoMode() {
     cv::VideoCapture *capdev;
@@ -161,7 +139,7 @@ void imageMode() {
     cv::Mat dstImage1;
 
     // srcImage1 = cv::imread("res/sample/img4.png", 1);
-    srcImage1 = cv::imread("res/own/own3.png", 1);
+    srcImage1 = cv::imread("res/own/own6.png", 1);
 
     filter op = none;
 
@@ -237,7 +215,14 @@ int main(int argc, char *argv[]) {
         randomColors.push_back(
             cv::Vec3b((rand() & 255), (rand() & 255), (rand() & 255)));
     }
-    // imageMode();
-    // videoMode();
-    trainMode();
+    char mode;
+    cout << "enter mode: v video, i image, t train" << endl;
+    cin >> mode;
+    if(mode == 'v'){
+        videoMode();
+    } else if (mode == 'i'){
+        imageMode();
+    } else {
+        trainMode();
+    }
 }

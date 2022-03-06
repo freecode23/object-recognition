@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "filter.hpp"
-#include "orCsvUtil.hpp"
 #include "orProcessing.hpp"
 #include "orUtil.hpp"
 using namespace cv;
@@ -14,27 +13,7 @@ using namespace std;
 vector<cv::Vec3b> randomColors;
 const int maxRegions = 6;
 enum filter { none, thresh, clean, segment, features, getLabel };
-enum stuff { null, glasses, knife, noodle, mascara, plier };
-
-/*
-Bruce A. Maxwell
-
-CS 5330 Computer Vision
-Spring 2021
-
-CPP functions for reading CSV files with a specific format
-- first column is a string containing a filename or path
-- every other column is a number
-
-The function returns a std::vector of char* for the filenames and a 2D
-std::vector of floats for the data
-*/
-#include <cstdio>
-#include <cstring>
-#include <vector>
-
-#include "orCsvUtil.hpp"
-using namespace std;
+enum stuff { null, glasses, knife, noodle, mascara, plier, scissors };
 
 /*
   Given a filename, and image filename, and the image features, by
@@ -49,8 +28,8 @@ using namespace std;
   The function returns a non-zero value in case of an error.
  */
 int append_image_data_csv(char *csv_filepath, char *image_filename,
-                          char *label_name, std::vector<float> &feature_vector,
-                          int reset_file) {
+                          const char *label_name,
+                          std::vector<float> &feature_vector, int reset_file) {
     char buffer[256];
     char mode[8];
     FILE *fp;
@@ -173,30 +152,40 @@ int trainMode() {
             output.write(dstFrame);
         }
 
-        // 2. If Process
+        // 2. If we are processing:
         if (op == getLabel) {
             vector<float> feature_vec;
             compute_features(srcFrame, dstFrame, randomColors, maxRegions,
                              feature_vec);
 
+            // enum stuff { null, glasses, knife, noodle, mascara, plier };
 
-            
-            // save
-            // get image_filepath
-            
-            saved_img_name = getNewFileName();
-            char *image_filepath = (char *)saved_img_name.data();
-            string path_name = "res/own/";
-            cv::imwrite(path_name.append(saved_img_name), dstFrame);
-            if (obj == mascara)
-            {
-                char label_name[] = "mascara";
+            if (obj != null) {  // if we are labelling, save it as image
+
+                saved_img_name = getNewFileName();
+                char *image_filepath = (char *)saved_img_name.data();
+                string path_name = "res/own/";
+                cv::imwrite(path_name.append(saved_img_name), dstFrame);
+
+                const char *label_name;
+                if (obj == mascara) {
+                    label_name = "mascara";
+                } else if (obj == glasses) {
+                    label_name = "glasses";
+                } else if (obj == knife) {
+                    label_name = "knife,";
+                } else if (obj == noodle) {
+                    label_name = "noodle";
+                } else if (obj == plier) {
+                    label_name = "plier";
+                } else if (obj == scissors) {
+                    label_name = "scissors";
+                }
+
                 append_image_data_csv(csv_filepath, image_filepath, label_name,
                                       feature_vec, 0);
                 obj = null;
             }
-
-           
 
             // reset object choice
 
@@ -220,15 +209,27 @@ int trainMode() {
         {
             cout << "Recording starts.. " << endl;
             record = true;
-        } else if (key == 's') {
-            cout << "starts get label" << endl;
+        } else if (key == 'a') {
+            cout << "get label" << endl;
             op = getLabel;
         } else if (key == 'm') {
             cout << "mascara" << endl;
             obj = mascara;
-        } else if (key == 32) {
-            cout << "Reset color..." << endl;
-            op = none;
+        } else if (key == 'g') {
+            cout << "glasses" << endl;
+            obj = glasses;
+        } else if (key == 'k') {
+            cout << "knife" << endl;
+            obj = knife;
+        } else if (key == 'n') {
+            cout << "noodle" << endl;
+            obj = noodle;
+        } else if (key == 'p') {
+            cout << "plier" << endl;
+            obj = plier;
+        } else if (key == 's') {
+            cout << "scissors" << endl;
+            obj = scissors;
         } else if (key == -1) {
             continue;
         } else {
