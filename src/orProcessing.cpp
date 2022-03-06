@@ -228,7 +228,6 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
     std::vector<int> areas;
     for (int i = 0; i < out_stats.rows; i++) {
         int area = out_stats.at<int>(i, cv::CC_STAT_AREA);  // area
-        cout << area << endl;
         areas.push_back(area);
     }
 
@@ -254,7 +253,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
                       vector<cv::Vec3b> random_colors, int max_regions,
                       vector<float> &out_features) {
 
-    cout << "compute features" << endl;
+    // cout << "compute features" << endl;
     // 1. do segmentation to only get 1 region
     cv::Mat cleaned_img;
     cv::Mat binary_img;
@@ -297,7 +296,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
     // print features
     int id = 0;
     for (float feat : out_features) {
-        cout << id << ": " << feat << ", ";
+        // cout << id << ": " << feat << ", ";
         id += 1;
     }
 

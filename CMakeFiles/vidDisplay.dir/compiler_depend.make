@@ -1435,8 +1435,12 @@ CMakeFiles/vidDisplay.dir/src/vidDisplay.cpp.o: src/vidDisplay.cpp \
   /opt/homebrew/Cellar/opencv/4.5.4_3/include/opencv4/opencv2/video/tracking.hpp \
   /opt/homebrew/Cellar/opencv/4.5.4_3/include/opencv4/opencv2/video/background_segm.hpp \
   src/orProcessing.hpp \
-  src/orUtil.hpp
+  src/orUtil.hpp \
+  src/orCsvUtil.hpp \
+  src/trainMode.hpp
 
+
+src/orCsvUtil.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/sys/stat.h:
 
@@ -1479,6 +1483,8 @@ src/orProcessing.hpp:
 /opt/homebrew/Cellar/opencv/4.5.4_3/include/opencv4/opencv2/flann/index_testing.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/iomanip:
+
+src/trainMode.hpp:
 
 /opt/homebrew/Cellar/opencv/4.5.4_3/include/opencv4/opencv2/flann/lsh_table.h:
 

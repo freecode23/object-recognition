@@ -29,8 +29,8 @@ vector<int> get_top_N_largest_areas_index(vector<int> areas, int region_num) {
         region_num = areas.size();
     }
     for (int i = 0; i < region_num; i++) {
-        cout << "index: " << areas_indices.top().second
-             << ", area: " << areas_indices.top().first << endl;
+        // cout << "index: " << areas_indices.top().second
+        //      << ", area: " << areas_indices.top().first << endl;
         top_N_largest_areas_indices.push_back(areas_indices.top().second);
         areas_indices.pop();  // remove max
     }
@@ -63,9 +63,9 @@ pair<int, double> find_entry_with_smallest_value(map<int, double> indices_val) {
 void print_map(map<int, double> map_to_print) {
     map<int, double>::iterator itr;
     for (itr = map_to_print.begin(); itr != map_to_print.end(); ++itr) {
-        cout << itr->first << " = " << itr->second << ", ";
+        // cout << itr->first << " = " << itr->second << ", ";
     }
-    cout << endl;
+    // cout << endl;
 }
 
 // 3. 4
@@ -105,8 +105,8 @@ int get_id_with_most_center_centroids(vector<int> &img_center,
     pair<int, double> entry_with_min_value =
         find_entry_with_smallest_value(indices_distances);
 
-    cout << "\nEntry with most center centroids: " << entry_with_min_value.first
-         << " = " << entry_with_min_value.second << endl;
+    // cout << "\nEntry with most center centroids: " << entry_with_min_value.first
+    //      << " = " << entry_with_min_value.second << endl;
 
     return entry_with_min_value.first;
 }
@@ -114,7 +114,7 @@ int get_id_with_most_center_centroids(vector<int> &img_center,
 // 4.1
 int get_id_with_most_center_centroids_opencv(vector<int> &img_center,
                                              vector<pair<int, int>> centroids) {
-    cout << "get_id_with_most_center_centroids_opencv: " << endl;
+    // cout << "get_id_with_most_center_centroids_opencv: " << endl;
     map<int, double> indices_distances;
 
     for (int i = 0; i < centroids.size(); i++) {
@@ -134,8 +134,8 @@ int get_id_with_most_center_centroids_opencv(vector<int> &img_center,
     pair<int, double> entry_with_min_value =
         find_entry_with_smallest_value(indices_distances);
 
-    cout << "Entry with min value open cv: " << entry_with_min_value.first
-         << " = " << entry_with_min_value.second << endl;
+    // cout << "Entry with min value open cv: " << entry_with_min_value.first
+    //      << " = " << entry_with_min_value.second << endl;
 
     return entry_with_min_value.first;
 }

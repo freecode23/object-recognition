@@ -3,32 +3,34 @@
 #include <string>
 #include "filter.hpp"
 #include "orProcessing.hpp"
+#include "orCsvUtil.hpp"
 #include "orUtil.hpp"
+#include "trainMode.hpp"
 #define PI 3.14159265;
 using namespace std;
 
-vector<cv::Vec3b> randomColors;
-const int maxRegions = 6;
-enum filter { none, thresh, clean, segment, features, getLabel };
-enum stuff{glasses, knife,  noodle, mascara, plier};
+// vector<cv::Vec3b> randomColors;
+// const int maxRegions = 6;
+// enum filter { none, thresh, clean, segment, features, getLabel };
+// enum stuff{glasses, knife,  noodle, mascara, plier};
 
-string getNewFileName() {
-    // create file path and name of idx 0
-    string imgName = "res/own/own";
-    int fileIdx = 0;
-    imgName.append(to_string(fileIdx)).append(".png");
-    struct stat buffer;
-    bool isFileExist = (stat(imgName.c_str(), &buffer) == 0);
+// string getNewFileName() {
+//     // create file path and name of idx 0
+//     string imgName = "res/own/own";
+//     int fileIdx = 0;
+//     imgName.append(to_string(fileIdx)).append(".png");
+//     struct stat buffer;
+//     bool isFileExist = (stat(imgName.c_str(), &buffer) == 0);
 
-    while (isFileExist) {
-        fileIdx += 1;
-        imgName = "res/own/own";
-        imgName.append(to_string(fileIdx)).append(".png");
-        isFileExist = (stat(imgName.c_str(), &buffer) == 0);
-    }
-    // file does not exists retunr this name
-    return imgName;
-}
+//     while (isFileExist) {
+//         fileIdx += 1;
+//         imgName = "res/own/own";
+//         imgName.append(to_string(fileIdx)).append(".png");
+//         isFileExist = (stat(imgName.c_str(), &buffer) == 0);
+//     }
+//     // file does not exists retunr this name
+//     return imgName;
+// }
 
 int videoMode() {
     cv::VideoCapture *capdev;
@@ -56,12 +58,8 @@ int videoMode() {
 
     cv::namedWindow("Video", 1);  // 4. identifies a window
     cv::Mat srcFrame;             // 5. create srcFrame to display
-    cv::Mat interFrame;
     cv::Mat dstFrame;
-    cv::Mat sXFrame;
-    cv::Mat sYFrame;
     filter op = none;
-    int fileIdx = 1;
 
     for (;;) {
         *capdev >> srcFrame;  // 6. get a new frame from the camera, treat as a stream
@@ -118,8 +116,11 @@ int videoMode() {
         } else if (key == 'j')  // save single image to jpeg
         {
             cout << "saving file";
-            string imgName = getNewFileName();
-            cv::imwrite(imgName, dstFrame);
+            string path_name = "res/own/";
+            string img_name = getNewFileName();
+            path_name.append(img_name);
+            
+            cv::imwrite(path_name, dstFrame);
         } else if (key == 'r')  // record video to avi
         {
             cout << "Recording starts.. " << endl;
@@ -228,110 +229,6 @@ void imageMode() {
     }
 }
 
-int trainingMode() {
-    // SET UP
-    cv::VideoCapture *capdev;
-    // 1. Open the video device
-    capdev = new cv::VideoCapture(0);
-    capdev->set(cv::CAP_PROP_FRAME_WIDTH,
-                1000);  // Setting the width of the video
-    capdev->set(cv::CAP_PROP_FRAME_HEIGHT,
-                800);  // Setting the height of the video//
-    if (!capdev->isOpened()) {
-        printf("Unable to open video device\n");
-        return (-1);
-    }
-
-    // 2. Get video resolution and create a size object
-    cv::Size refS((int)capdev->get(cv::CAP_PROP_FRAME_WIDTH),
-                  (int)capdev->get(cv::CAP_PROP_FRAME_HEIGHT));
-
-    printf("Expected size: %d %d\n", refS.width, refS.height);
-    // 3. Create video writer object filename, format, size
-    cv::VideoWriter output("res/own/myout.avi",
-                           cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 5,
-                           refS);
-    bool record = false;
-
-    cv::namedWindow("Video", 1);  // 4. identifies a window
-    cv::Mat srcFrame;             // 5. create srcFrame to display
-    cv::Mat interFrame;
-    cv::Mat dstFrame;
-    cv::Mat sXFrame;
-    cv::Mat sYFrame;
-    filter op = none;
-    stuff obj;
-    int fileIdx = 1;
-    string userInput; 
-    
-
-    // STARTS
-    for (;;) {
-        *capdev >> srcFrame;  // get a new frame from the camera, treat as a stream
-
-        if (srcFrame.empty()) {
-            printf("srcFrame is empty\n");
-            break;
-        }
-        // 1. Record
-        if (record == 1) {
-            output.write(dstFrame);
-        }
-
-        // 2. Process
-        if (op == features) {
-            vector<float> feature_vec;
-            cv::Point out_centroid_of_interest;
-            compute_features(srcFrame, dstFrame, randomColors, maxRegions,
-                             feature_vec);
-
-            // if(obj == mascara){
-            //     feature_vec
-            // }
-
-        } else {  // display frame as is
-            srcFrame.copyTo(dstFrame);
-        }
-
-        cv::imshow("Video", dstFrame);
-
-        // 4. get key strokes
-        char key = cv::waitKey(5);
-        if (key == 'q') {
-            cout << "Quit program." << endl;
-            break;
-        } else if (key == 'j')  // save single image to jpeg
-        {
-            cout << "saving file";
-            string imgName = getNewFileName();
-            cv::imwrite(imgName, dstFrame);
-        } else if (key == 'r')  // record video to avi
-        {
-            cout << "Recording starts.. " << endl;
-            record = true;
-        } else if (key == 'f')  
-        {
-            cout << "features" << endl;
-            op = getLabel;
-        } else if (key == 'm')  
-        {
-            cout << "mas" << endl;
-            obj = mascara;
-        }else if (key == 32) {
-            cout << "Reset color..." << endl;
-            op = none;
-        } else if (key == -1) {
-            continue;
-        } else {
-            cout << key << endl;
-        }
-    }
-    // release video writer
-    output.release();
-    delete capdev;
-    return (0);
-}
-
 
 int main(int argc, char *argv[]) {
     // initialize n random colors for all n regions
@@ -341,6 +238,6 @@ int main(int argc, char *argv[]) {
             cv::Vec3b((rand() & 255), (rand() & 255), (rand() & 255)));
     }
     // imageMode();
-    videoMode();
-    // trainingMode();
+    // videoMode();
+    trainMode();
 }
