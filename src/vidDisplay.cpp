@@ -40,8 +40,8 @@ int videoMode(char *csv_dir) {
     filter op = none;
 
     for (;;) {
-        *capdev >>
-            srcFrame;  // 6. get a new frame from the camera, treat as a stream
+        // 6. get a new frame from the camera, treat as a stream
+        *capdev >> srcFrame;  
 
         if (srcFrame.empty()) {
             printf("srcFrame is empty\n");

@@ -403,8 +403,11 @@ vector<float> compute_sd(vector<vector<float>> fis) {
         sums.push_back(sum_feat_i);// push back the sum of the 9 features
     }
 
-    for(float sum : sums){
-        cout << "sum=" << sum << endl;
+    for(float sum : sums){ // there are 9 sums
+        float sd = sum / n; // sum of each feat_element for 48 images / number of images
+        cout << "total sum=" << sum;
+        cout << "total sd=" << sd << endl;
+        standard_devs.push_back(sd);
     }
     return standard_devs;
 }
