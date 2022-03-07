@@ -23,7 +23,7 @@ using namespace std;
 // 3.1 (print areas of all regions)
 vector<int> get_top_N_largest_areas_index(vector<int> areas, int region_num) {
     vector<int> top_N_largest_areas_indices;
-    cout << "\ncorner: " <<endl;
+    // cout << "\ncorner: " <<endl;
     // areas_indices(area, index)
     std::priority_queue<std::pair<int, int>> areas_indices;
 
@@ -34,8 +34,8 @@ vector<int> get_top_N_largest_areas_index(vector<int> areas, int region_num) {
         region_num = areas.size();
     }
     for (int i = 0; i < region_num; i++) {
-        cout << "index: " << areas_indices.top().second
-             << ", area: " << areas_indices.top().first << endl;
+        // cout << "index: " << areas_indices.top().second
+        //      << ", area: " << areas_indices.top().first << endl;
         top_N_largest_areas_indices.push_back(areas_indices.top().second);
         areas_indices.pop();  // remove max
     }

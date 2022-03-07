@@ -126,7 +126,7 @@ void clean_up(cv::Mat &src, cv::Mat &dst) {
     cv::Mat mask = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
 
     // 2. close and open
-    cv::morphologyEx(src, inter, cv::MORPH_CLOSE, mask, cv::Point(-1, -1), 8);
+    cv::morphologyEx(src, inter, cv::MORPH_CLOSE, mask, cv::Point(-1, -1), 9);
     cv::morphologyEx(inter, dst, cv::MORPH_OPEN, mask, cv::Point(-1, -1), 2);
 }
 
@@ -230,20 +230,18 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
         //         cout << "not touching" << endl;
         //     }
         // }
-
-        cout << "end\n\n" << endl;
     }
 }
 
 vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int, int>> areas_indices, int region_num) {
     vector<int> top_N_largest_areas_indices;
-    cout << "not corner: " <<endl;
+    // cout << "not corner: " <<endl;
     if(region_num > areas_indices.size()){
         region_num = areas_indices.size();
     }
     for (int i = 0; i < region_num; i++) {
-        cout << "index: " << areas_indices.top().second
-             << ", area: " << areas_indices.top().first << endl;
+        // cout << "index: " << areas_indices.top().second
+        //      << ", area: " << areas_indices.top().first << endl;
         top_N_largest_areas_indices.push_back(areas_indices.top().second);
         areas_indices.pop();  // remove max
     }
@@ -268,7 +266,7 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
 
     // remove corners
     // ids don't touch corner
-    cout << "regions before filter: " << n_regions << endl;
+    // cout << "regions before filter: " << n_regions << endl;
 
     // vector<int> ids_dont_touch_corners;
     std::priority_queue<std::pair<int, int>> areas_indices_not_corner;

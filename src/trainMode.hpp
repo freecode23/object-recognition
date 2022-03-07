@@ -13,7 +13,7 @@ using namespace std;
 vector<cv::Vec3b> randomColors;
 const int maxRegions = 6;
 enum filter { none, thresh, clean, segment, features, getLabel };
-enum stuff { null, glasses, knife, noodle, mascara, plier, scissors };
+enum stuff { null, glasses, lwrench, mascara, noodle, plier, wire };
 
 /*
   Given a filename, and image filename, and the image features, by
@@ -75,7 +75,7 @@ int append_image_data_csv(char *csv_filepath, char *image_filename,
 string getNewFileName() {
     // create img name
     int fileIdx = 0;
-    string img_name = "own";
+    string img_name = "ownClose1_";
     img_name.append(to_string(fileIdx)).append(".png");
 
     // create full path
@@ -86,7 +86,7 @@ string getNewFileName() {
 
     while (isFileExist) {
         fileIdx += 1;
-        img_name = "own";
+        img_name = "ownClose1_";
         img_name.append(to_string(fileIdx)).append(".png");
 
         path_name = "res/own/";
@@ -132,11 +132,11 @@ int trainMode() {
 
     // reset file
     char csv_filepath[] = "res/label.csv";
-    FILE *fp = fopen(csv_filepath, "w");
-    if (!fp) {
-        printf("Unable to open output file %s\n", csv_filepath);
-        exit(-1);
-    }
+    // FILE *fp = fopen(csv_filepath, "w");
+    // if (!fp) {
+    //     printf("Unable to open output file %s\n", csv_filepath);
+    //     exit(-1);
+    // }
 
     // STARTS
     for (;;) {
@@ -158,7 +158,7 @@ int trainMode() {
             compute_features(srcFrame, dstFrame, randomColors, maxRegions,
                              feature_vec);
 
-            // enum stuff { null, glasses, knife, noodle, mascara, plier };
+            // enum stuff { null, glasses, wire, noodle, mascara, plier };
 
             if (obj != null) {  // if we are labelling, save it as image
 
@@ -168,18 +168,18 @@ int trainMode() {
                 cv::imwrite(path_name.append(saved_img_name), dstFrame);
 
                 const char *label_name;
-                if (obj == mascara) {
-                    label_name = "mascara";
-                } else if (obj == glasses) {
+                if (obj == glasses) {
                     label_name = "glasses";
-                } else if (obj == knife) {
-                    label_name = "knife,";
+                } else if (obj == lwrench) {
+                    label_name = "lwrench";
+                } else if (obj == mascara) {
+                    label_name = "mascara";
                 } else if (obj == noodle) {
                     label_name = "noodle";
                 } else if (obj == plier) {
                     label_name = "plier";
-                } else if (obj == scissors) {
-                    label_name = "scissors";
+                } else if (obj == wire) {
+                    label_name = "wire,";
                 }
 
                 append_image_data_csv(csv_filepath, image_filepath, label_name,
@@ -188,7 +188,6 @@ int trainMode() {
             }
 
             // reset object choice
-
         } else {  // display frame as is
             srcFrame.copyTo(dstFrame);
         }
@@ -212,24 +211,27 @@ int trainMode() {
         } else if (key == 'a') {
             cout << "get label" << endl;
             op = getLabel;
-        } else if (key == 'm') {
-            cout << "mascara" << endl;
-            obj = mascara;
         } else if (key == 'g') {
             cout << "glasses" << endl;
             obj = glasses;
-        } else if (key == 'k') {
-            cout << "knife" << endl;
-            obj = knife;
+        } else if (key == 'l') {
+            cout << "lwrench" << endl;
+            obj = lwrench;
+        } else if (key == 'm') {
+            cout << "mascara" << endl;
+            obj = mascara;
         } else if (key == 'n') {
             cout << "noodle" << endl;
             obj = noodle;
         } else if (key == 'p') {
             cout << "plier" << endl;
             obj = plier;
-        } else if (key == 's') {
-            cout << "scissors" << endl;
-            obj = scissors;
+        } else if (key == 'w') {
+            cout << "wire" << endl;
+            obj = wire;
+        } else if (key == 32) {
+            cout << "Reset color..." << endl;
+            op = none;
         } else if (key == -1) {
             continue;
         } else {
