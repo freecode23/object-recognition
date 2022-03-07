@@ -9,14 +9,13 @@
 //**********************************************************************************************************************
 
 #include "orUtil.hpp"
-
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/utility.hpp>
 using namespace std;
 
 
-// 3.1 (print areas of all regions)
+// 3.0
 
 
 
@@ -189,4 +188,162 @@ void get_contour_of_interest(cv::Mat binary_img,
     // 2. get the largest contour
     int cont_id_of_interest = get_id_with_largest_contour_area(contours);
     out_contour = contours[cont_id_of_interest];
+}
+
+
+/*
+  reads a string from a CSV file. the 0-terminated string is returned in the
+  char array os.
+
+  The function returns false if it is successfully read. It returns true if it
+  reaches the end of the line or the file.
+ */
+
+int getstring(FILE *fp, char os[]) {
+    int p = 0;
+    int eol = 0;
+
+    for (;;) {
+        char ch = fgetc(fp);
+        if (ch == ',') {
+            break;
+        } else if (ch == '\n' || ch == EOF) {
+            eol = 1;
+            break;
+        }
+        // printf("%c", ch ); // uncomment for debugging
+        os[p] = ch;
+        p++;
+    }
+    // printf("\n"); // uncomment for debugging
+    os[p] = '\0';
+
+    return (eol);  // return true if eol
+}
+
+int getint(FILE *fp, int *v) {
+    char s[256];
+    int p = 0;
+    int eol = 0;
+
+    for (;;) {
+        char ch = fgetc(fp);
+        if (ch == ',') {
+            break;
+        } else if (ch == '\n' || ch == EOF) {
+            eol = 1;
+            break;
+        }
+
+        s[p] = ch;
+        p++;
+    }
+    s[p] = '\0';  // terminator
+    *v = atoi(s);
+
+    return (eol);  // return true if eol
+}
+
+/*
+  Utility function for reading one float value from a CSV file
+
+  The value is stored in the v parameter
+
+  The function returns true if it reaches the end of a line or the file
+ */
+int getfloat(FILE *fp, float *v) {
+    char s[256];
+    int p = 0;
+    int eol = 0;
+
+    for (;;) {
+        char ch = fgetc(fp);
+        if (ch == ',') {
+            break;
+        } else if (ch == '\n' || ch == EOF) {
+            eol = 1;
+            break;
+        }
+
+        s[p] = ch;
+        p++;
+    }
+    s[p] = '\0';  // terminator
+    *v = atof(s);
+
+    return (eol);  // return true if eol
+}
+
+
+
+/*
+  Given a file with the format of a string as the first column and
+  floating point numbers as the remaining columns, this function
+  returns the filenames as a std::vector of character arrays, and the
+  remaining data as a 2D std::vector<float>.
+
+  src_csv the file to read from
+  this will be the result:
+  - result_name will contain all of the image file names.
+  - resFbList will contain the features calculated from each image.
+
+  If echo_file is true, it prints out the contents of the file as read
+  into memory.
+
+  The function returns a non-zero value if something goes wrong.
+ */
+int read_features_from_csv(char *src_csv, vector<char *> &result_names,
+                        vector<char *> &result_labels,
+                        vector<vector<float>> &result_fis,
+                        int echo_file) {
+    FILE *fp;
+    float fval;
+    char single_imgname[256];
+    char single_label[256];
+
+    fp = fopen(src_csv, "r");
+    if (!fp) {
+        printf("Unable to open feature file\n");
+        return (-1);
+    }
+
+    printf("Reading %s\n", src_csv);
+    for (;;) {
+        std::vector<float> single_fi;  // feature vector of a single image
+
+        // 1. get single imgname
+        if (getstring(fp, single_imgname)) {
+            break;
+        }
+        // add to vectors
+        char *fimg_name = new char[strlen(single_imgname) + 1];
+        strcpy(fimg_name, single_imgname);
+        result_names.push_back(fimg_name);
+
+        // 2. get label name
+        if (getstring(fp, single_label)) {
+            break;
+        }
+
+        // add to vectors
+        char *flabel = new char[strlen(single_label) + 1];
+        strcpy(flabel, single_label);
+        result_labels.push_back(flabel);        
+
+        // 3. get the single fi
+        for (;;) {
+            // get next feature
+            float eol = getfloat(fp, &fval);
+            single_fi.push_back(fval);
+            if (eol) break;
+        }
+        // add to vectors
+        result_fis.push_back(single_fi);
+        // printf("read %lu features\n", dvec.size() );
+
+        
+    }
+    fclose(fp);
+    printf("Finished reading CSV file\n");
+    return (0);
 }

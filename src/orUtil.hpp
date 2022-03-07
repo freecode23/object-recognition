@@ -79,5 +79,17 @@ void compute_log_scale_hu(vector<cv::Point> contour, double *hu_arr);
 vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int, int>> areas_indices, int region_num);
 
 
+
+/*
+ * 5. get features vectors from csv file
+*/
+int read_features_from_csv(char *src_csv, vector<char *> &result_names,
+                        vector<char *> &result_labels,
+                        vector<vector<float>> &result_fis,
+                        int echo_file);
+
+int getfloat(FILE *fp, float *v);
+int getint(FILE *fp, int *v);
+int getstring(FILE *fp, char os[]);
 #endif
 

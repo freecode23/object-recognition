@@ -1,16 +1,16 @@
 #include <sys/stat.h>
+
 #include <iostream>
 #include <string>
+
 #include "filter.hpp"
 #include "orProcessing.hpp"
-#include "orCsvUtil.h"
 #include "orUtil.hpp"
 #include "trainMode.hpp"
 #define PI 3.14159265;
 using namespace std;
 
-
-int videoMode() {
+int videoMode(char *csv_dir) {
     cv::VideoCapture *capdev;
     // 1. Open the video device
     capdev = new cv::VideoCapture(0);
@@ -40,7 +40,8 @@ int videoMode() {
     filter op = none;
 
     for (;;) {
-        *capdev >> srcFrame;  // 6. get a new frame from the camera, treat as a stream
+        *capdev >>
+            srcFrame;  // 6. get a new frame from the camera, treat as a stream
 
         if (srcFrame.empty()) {
             printf("srcFrame is empty\n");
@@ -80,6 +81,12 @@ int videoMode() {
                 id += 1;
             }
             cout << "\n" << endl;
+        } else if (op == classify) {
+            vector<float> feature_vec;
+            compute_features(srcFrame, dstFrame, randomColors, maxRegions,
+                             feature_vec);
+
+            // classify(srcFrame, dstFrame, csv_dir);
         } else {  // op == none
             srcFrame.copyTo(dstFrame);
         }
@@ -97,7 +104,7 @@ int videoMode() {
             string path_name = "res/own/";
             string img_name = getNewFileName();
             path_name.append(img_name);
-            
+
             cv::imwrite(path_name, dstFrame);
         } else if (key == 'r')  // record video to avi
         {
@@ -115,10 +122,14 @@ int videoMode() {
         {
             cout << "segmenting" << endl;
             op = segment;
-        } else if (key == 'f')  // task 2. clean up
+        } else if (key == 'f')  // task 4, features
         {
-            cout << "features.." << endl;
+            cout << "compute features.." << endl;
             op = features;
+        } else if (key == 'y')  // task 6. classify
+        {
+            cout << "classsify.." << endl;
+            op = classify;
         } else if (key == 32) {
             cout << "Reset color..." << endl;
             op = none;
@@ -134,7 +145,7 @@ int videoMode() {
     return (0);
 }
 
-void imageMode() {
+void imageMode(char* csv_dir) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
 
@@ -159,11 +170,20 @@ void imageMode() {
             int area;
             cv::Point out_centroid_of_interest;
             segment_and_color(cleanedImage1, dstImage1, randomColors,
-                              maxRegions, false, area, out_centroid_of_interest);
+                              maxRegions, false, area,
+                              out_centroid_of_interest);
         } else if (op == features) {
             vector<float> feature_vec;
             compute_features(srcImage1, dstImage1, randomColors, maxRegions,
                              feature_vec);
+        }else if (op == classify) {
+
+            // get feature vector to compare fx
+            vector<float> ft;
+            compute_features(srcImage1, dstImage1, randomColors, maxRegions,
+                             ft);
+
+            classifying(srcImage1, dstImage1, ft, csv_dir);
         } else {  // op == none
             srcImage1.copyTo(dstImage1);
         }
@@ -188,8 +208,12 @@ void imageMode() {
             op = segment;
         } else if (k == 'f')  // task 2. clean up
         {
-            cout << "features" << endl;
+            cout << "compute features" << endl;
             op = features;
+        } else if (k == 'y')  // task 6. classify
+        {
+            cout << "classsify.." << endl;
+            op = classify;
         } else if (k == 'j') {
             cout << "save image" << endl;
             string imgName = getNewFileName();
@@ -207,7 +231,6 @@ void imageMode() {
     }
 }
 
-
 int main(int argc, char *argv[]) {
     // initialize n random colors for all n regions
     randomColors.push_back(cv::Vec3b(0, 0, 0));
@@ -218,11 +241,12 @@ int main(int argc, char *argv[]) {
     char mode;
     cout << "enter mode: v video, i image, t train" << endl;
 
+
     cin >> mode;
-    if(mode == 'v'){
-        videoMode();
-    } else if (mode == 'i'){
-        imageMode();
+    if (mode == 'v') {
+        videoMode(argv[1]);
+    } else if (mode == 'i') {
+        imageMode(argv[1]);
     } else {
         trainMode();
     }

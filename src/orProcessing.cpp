@@ -8,14 +8,13 @@
 // Sherly Hartono
 //**********************************************************************************************************************
 
-
+#include "orProcessing.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/utility.hpp>
 
 #include "orUtil.hpp"
-#include "orProcessing.hpp"
 
 using namespace std;
 
@@ -212,7 +211,7 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
         }
 
         // test here region of interest remove sidewalled
-        // draw all regions 
+        // draw all regions
         // for (int i = 0; i < stats.rows; i++) {
         //     cout << i << endl;
         //     int x = stats.at<int>(i, cv::CC_STAT_LEFT);
@@ -234,10 +233,11 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
     }
 }
 
-vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int, int>> areas_indices, int region_num) {
+vector<int> get_top_N_largest_areas_not_corner(
+    std::priority_queue<std::pair<int, int>> areas_indices, int region_num) {
     vector<int> top_N_largest_areas_indices;
     // cout << "not corner: " <<endl;
-    if(region_num > areas_indices.size()){
+    if (region_num > areas_indices.size()) {
         region_num = areas_indices.size();
     }
     for (int i = 0; i < region_num; i++) {
@@ -249,6 +249,7 @@ vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int
 
     return top_N_largest_areas_indices;
 }
+
 void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
                   vector<int> &out_ids_to_keep, int &out_id_of_interest,
                   cv::Mat &out_stats, cv::Point &out_centroid_of_interest) {
@@ -286,7 +287,8 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
     }
 
     // 4. filter corner
-    out_ids_to_keep = get_top_N_largest_areas_not_corner(areas_indices_not_corner, max_regions);
+    out_ids_to_keep = get_top_N_largest_areas_not_corner(
+        areas_indices_not_corner, max_regions);
     out_ids_to_keep = get_top_N_largest_areas_index(areas, max_regions);
 
     // 6. filter by centroid
@@ -382,4 +384,49 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
         cv::line(dst, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 0),
                  2);
     }
+}
+
+vector<float> compute_sd(vector<vector<float>> fis) {
+    vector<float> means;
+    vector<float> sums;
+    vector<float> standard_devs;
+    int n = fis.size();
+    cout << "total images " << n << endl;
+
+    for (int i = 0; i < fis.at(0).size(); i++) { // for each features(9)
+        float sum_feat_i = 0;
+        for(vector<float> image_data : fis){ // for each image
+            sum_feat_i += image_data.at(i); // sum the feature_i of all images
+            cout << "feat=" << i << " val=" <<image_data.at(i) << " sum=" << sum_feat_i <<  endl;
+
+        }
+        sums.push_back(sum_feat_i);// push back the sum of the 9 features
+    }
+
+    for(float sum : sums){
+        cout << "sum=" << sum << endl;
+    }
+    return standard_devs;
+}
+/*
+ * task 6
+ */
+
+void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
+                 char *fis_csv_dir) {
+    vector<char *> names;
+    vector<char *> labels;
+    vector<vector<float>> fis;
+
+    read_features_from_csv(fis_csv_dir, names, labels, fis, 0);
+    int i = 0;
+    // to debug
+    // for(vector<float> fi : fis){
+    //     cout << i <<" " << fi.at(8) << " ";
+    //     cout << " imgName="  << names.at(i) << " ";
+    //     cout << " label=" << labels.at(i) << " " << endl;
+    //     i  +=1;
+    // }
+
+    compute_sd(fis);
 }

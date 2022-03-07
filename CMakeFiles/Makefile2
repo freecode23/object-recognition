@@ -81,12 +81,12 @@ clean: CMakeFiles/vidDisplay.dir/clean
 CMakeFiles/vidDisplay.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target vidDisplay"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles --progress-num=1,2,3,4,5 "Built target vidDisplay"
 .PHONY : CMakeFiles/vidDisplay.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/vidDisplay.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/vidDisplay.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/freebox/Desktop/code2/NEU/5330/project3/CMakeFiles 0
 .PHONY : CMakeFiles/vidDisplay.dir/rule

@@ -9,7 +9,6 @@
 //**********************************************************************************************************************
 #ifndef OR_H
 #define OR_H
-
 #include <opencv2/opencv.hpp>
 using namespace std;
 
@@ -76,9 +75,10 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
 
 
 /*
- * Task 5: training
+ * Task 6: classify
+ *
  */
-
+ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir);
 
 
 #endif

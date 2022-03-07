@@ -153,30 +153,6 @@ src/filter.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/src/filter.cpp.s
 .PHONY : src/filter.cpp.s
 
-src/orCsvUtil.o: src/orCsvUtil.cpp.o
-.PHONY : src/orCsvUtil.o
-
-# target to build an object file
-src/orCsvUtil.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/src/orCsvUtil.cpp.o
-.PHONY : src/orCsvUtil.cpp.o
-
-src/orCsvUtil.i: src/orCsvUtil.cpp.i
-.PHONY : src/orCsvUtil.i
-
-# target to preprocess a source file
-src/orCsvUtil.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/src/orCsvUtil.cpp.i
-.PHONY : src/orCsvUtil.cpp.i
-
-src/orCsvUtil.s: src/orCsvUtil.cpp.s
-.PHONY : src/orCsvUtil.s
-
-# target to generate assembly for a file
-src/orCsvUtil.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vidDisplay.dir/build.make CMakeFiles/vidDisplay.dir/src/orCsvUtil.cpp.s
-.PHONY : src/orCsvUtil.cpp.s
-
 src/orProcessing.o: src/orProcessing.cpp.o
 .PHONY : src/orProcessing.o
 
@@ -261,9 +237,6 @@ help:
 	@echo "... src/filter.o"
 	@echo "... src/filter.i"
 	@echo "... src/filter.s"
-	@echo "... src/orCsvUtil.o"
-	@echo "... src/orCsvUtil.i"
-	@echo "... src/orCsvUtil.s"
 	@echo "... src/orProcessing.o"
 	@echo "... src/orProcessing.i"
 	@echo "... src/orProcessing.s"
