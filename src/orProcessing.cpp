@@ -8,13 +8,13 @@
 // Sherly Hartono
 //**********************************************************************************************************************
 
-
+#include "orProcessing.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/utility.hpp>
+
 #include "orUtil.hpp"
-#include "orProcessing.hpp"
 
 using namespace std;
 
@@ -126,8 +126,8 @@ void clean_up(cv::Mat &src, cv::Mat &dst) {
     cv::Mat mask = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
 
     // 2. close and open
-    cv::morphologyEx(src, inter, cv::MORPH_CLOSE, mask, cv::Point(-1, -1), 20);
-    cv::morphologyEx(inter, dst, cv::MORPH_OPEN, mask, cv::Point(-1, -1), 6);
+    cv::morphologyEx(src, inter, cv::MORPH_CLOSE, mask, cv::Point(-1, -1), 8);
+    cv::morphologyEx(inter, dst, cv::MORPH_OPEN, mask, cv::Point(-1, -1), 2);
 }
 
 /*
@@ -138,7 +138,6 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
                        std::vector<cv::Vec3b> random_colors, int max_regions,
                        bool isColorful, int &out_area,
                        cv::Point &out_centroid_of_interest) {
-
     vector<int> out_ids_to_keep;
     cv::Mat stats;
     cv::Mat out_label;
@@ -194,9 +193,9 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
                     2,                               // Line Thickness
                     cv::LINE_4);
     } else {
-        // single channel
+        // 6. get the single region of interest only
         dst.create(src.size(), CV_8UC1);
-        // 6. filter out regions not of interest
+        // filter out not the rest
         for (int r = 0; r < dst.rows; ++r) {
             for (int c = 0; c < dst.cols; ++c) {
                 // get the region id at this coordinate
@@ -210,14 +209,50 @@ void segment_and_color(cv::Mat &src, cv::Mat &dst,
                 }
             }
         }
+
+        // test here region of interest remove sidewalled
+        // draw all regions 
+        // for (int i = 0; i < stats.rows; i++) {
+        //     cout << i << endl;
+        //     int x = stats.at<int>(i, cv::CC_STAT_LEFT);
+        //     int y = stats.at<int>(i, cv::CC_STAT_TOP);
+        //     int w = stats.at<int>(i, cv::CC_STAT_WIDTH);
+        //     int h = stats.at<int>(i, cv::CC_STAT_HEIGHT);
+
+        //     std::cout << "x=" << x << " y=" << y << " w=" << w << " h=" << h
+        //               << std::endl;
+
+        //     cout << "x+width=" << x + w << " y+height=" << y + h << endl;
+        //     cv::Scalar color(255, 255, 255);
+        //     cv::Rect rect(x, y, w, h);
+        //     cv::rectangle(dst, rect, color);
+        //     if (x != 0 && y != 0 && x + w != src.cols && y + h != src.rows) {
+        //         cout << "not touching" << endl;
+        //     }
+        // }
+
+        cout << "end\n\n" << endl;
     }
 }
 
+vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int, int>> areas_indices, int region_num) {
+    vector<int> top_N_largest_areas_indices;
+    cout << "not corner: " <<endl;
+    if(region_num > areas_indices.size()){
+        region_num = areas_indices.size();
+    }
+    for (int i = 0; i < region_num; i++) {
+        cout << "index: " << areas_indices.top().second
+             << ", area: " << areas_indices.top().first << endl;
+        top_N_largest_areas_indices.push_back(areas_indices.top().second);
+        areas_indices.pop();  // remove max
+    }
+
+    return top_N_largest_areas_indices;
+}
 void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
                   vector<int> &out_ids_to_keep, int &out_id_of_interest,
                   cv::Mat &out_stats, cv::Point &out_centroid_of_interest) {
-   
-
     // 1. get regions
     out_label.create(src.size(), CV_32S);
     cv::Mat centroids;
@@ -231,11 +266,31 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
         areas.push_back(area);
     }
 
-    // 3. filter by area
-    // get top 6 largest area by index
+    // remove corners
+    // ids don't touch corner
+    cout << "regions before filter: " << n_regions << endl;
+
+    // vector<int> ids_dont_touch_corners;
+    std::priority_queue<std::pair<int, int>> areas_indices_not_corner;
+    // 3 get ids that dont touch corner
+    for (int i = 0; i < out_stats.rows; i++) {
+        int x = out_stats.at<int>(i, cv::CC_STAT_LEFT);
+        int y = out_stats.at<int>(i, cv::CC_STAT_TOP);
+        int w = out_stats.at<int>(i, cv::CC_STAT_WIDTH);
+        int h = out_stats.at<int>(i, cv::CC_STAT_HEIGHT);
+        int a = out_stats.at<int>(i, cv::CC_STAT_AREA);
+
+        // if rectangle does not touch corners keep this area and id
+        if (x != 0 && y != 0 && x + w != src.cols && y + h != src.rows) {
+            areas_indices_not_corner.push(std::pair<int, int>(a, i));
+        }
+    }
+
+    // 4. filter corner
+    out_ids_to_keep = get_top_N_largest_areas_not_corner(areas_indices_not_corner, max_regions);
     out_ids_to_keep = get_top_N_largest_areas_index(areas, max_regions);
-    
-    // 4. filter by centroid
+
+    // 6. filter by centroid
     vector<int> img_center = get_center_coordinates(src);  // image center
     // get single id of interest
     out_id_of_interest = get_id_with_most_center_centroids(
@@ -243,7 +298,6 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
     out_centroid_of_interest =
         cv::Point(centroids.at<double>(out_id_of_interest, 0),
                   centroids.at<double>(out_id_of_interest, 1));
-             
 }
 
 /*
@@ -252,7 +306,6 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
 void compute_features(cv::Mat &src, cv::Mat &dst,
                       vector<cv::Vec3b> random_colors, int max_regions,
                       vector<float> &out_features) {
-
     // cout << "compute features" << endl;
     // 1. do segmentation to only get 1 region
     cv::Mat cleaned_img;
@@ -331,5 +384,3 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
                  2);
     }
 }
-
-

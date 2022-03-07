@@ -67,7 +67,7 @@ int videoMode() {
             int area;
             cv::Point out_centroid_of_interest;
             segment_and_color(cleanedFrame, dstFrame, randomColors, maxRegions,
-                              true, area, out_centroid_of_interest);
+                              false, area, out_centroid_of_interest);
         } else if (op == features) {
             vector<float> feature_vec;
             cv::Point out_centroid_of_interest;
@@ -138,8 +138,8 @@ void imageMode() {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
 
-    // srcImage1 = cv::imread("res/sample/img4.png", 1);
-    srcImage1 = cv::imread("res/own/own6.png", 1);
+    srcImage1 = cv::imread("res/sample/img3.png", 1);
+    // srcImage1 = cv::imread("res/own/own4.png", 1);
 
     filter op = none;
 
@@ -159,7 +159,7 @@ void imageMode() {
             int area;
             cv::Point out_centroid_of_interest;
             segment_and_color(cleanedImage1, dstImage1, randomColors,
-                              maxRegions, true, area, out_centroid_of_interest);
+                              maxRegions, false, area, out_centroid_of_interest);
         } else if (op == features) {
             vector<float> feature_vec;
             compute_features(srcImage1, dstImage1, randomColors, maxRegions,

@@ -76,6 +76,7 @@ void get_contour_of_interest(cv::Mat binary_img, vector<cv::Point> &out_contour)
 */
 void compute_log_scale_hu(vector<cv::Point> contour, double *hu_arr);
 
+vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int, int>> areas_indices, int region_num);
 
 
 #endif
