@@ -179,7 +179,7 @@ int trainMode() {
                 } else if (obj == plier) {
                     label_name = "plier";
                 } else if (obj == wire) {
-                    label_name = "wire,";
+                    label_name = "wire";
                 }
 
                 append_image_data_csv(csv_filepath, image_filepath, label_name,

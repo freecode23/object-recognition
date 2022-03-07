@@ -296,6 +296,7 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
                         vector<char *> &result_labels,
                         vector<vector<float>> &result_fis,
                         int echo_file) {
+
     FILE *fp;
     float fval;
     char single_imgname[256];
@@ -346,4 +347,60 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
     fclose(fp);
     printf("Finished reading CSV file\n");
     return (0);
+}
+
+
+vector<float> compute_standevs(vector<vector<float>> fis) {
+    int n = fis.size();
+    // cout << "total images " << n << endl;
+    // calculate sum
+    vector<float> sums;
+    for (int i = 0; i < fis.at(0).size(); i++) {  // for each features(9)
+        float sum_feat_i = 0;
+        for (vector<float> image_data : fis) {  // for each image
+            sum_feat_i += image_data.at(i);  // sum the feature_i of all images
+            // cout << "feat=" << i << " val=" << image_data.at(i)
+            //      << " sum=" << sum_feat_i << endl;
+        }
+        sums.push_back(sum_feat_i);  // push back the sum of the 9 features
+    }
+
+    // calculate averages
+    vector<float> mus;
+    for (float sum : sums) {  // there are 9 sums
+        float avg =
+            sum /
+            n;  // sum of each feat_element for 48 images / number of images
+        // cout << "total_avgs=" << avg << endl;
+        mus.push_back(avg);
+    }
+
+    // calc sd
+    vector<float> standard_devs;
+    for (int i = 0; i < fis.at(0).size(); i++) {  // for each features(9)
+        double sum_squared = 0;
+        for (vector<float> image_data : fis) {  // for each image(48)
+            double x_i = image_data.at(i);
+            double mu_i = mus.at(i); 
+            sum_squared+= (x_i - mu_i) * (x_i - mu_i);
+            // cout << "feat=" << i << " sumsquared=" << sum_squared <<endl;
+        }
+        double sd = sqrt(sum_squared / n);
+        standard_devs.push_back(sd);
+        // cout << "sd=" << sd << endl;
+    }
+
+    return standard_devs;
+}
+
+float compute_scaled_ssd(vector<float> &ft, vector<float> &fi,
+                         vector<float> &standevs) {
+    float scaled_ssd;
+    // [ (x_1 - x_2) / stdev_x ] ^2
+    for (int i = 0; i < ft.size(); i++) {  // for each feature element (0-8)
+        // compute its scaledssd
+        double term = (ft.at(i) - fi.at(i)) / standevs.at(i);
+        scaled_ssd += (term * term);
+    }
+    return scaled_ssd;
 }

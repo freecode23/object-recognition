@@ -81,7 +81,7 @@ vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int
 
 
 /*
- * 5. get features vectors from csv file
+ * 5.0 get features vectors from csv file
 */
 int read_features_from_csv(char *src_csv, vector<char *> &result_names,
                         vector<char *> &result_labels,
@@ -91,5 +91,20 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
 int getfloat(FILE *fp, float *v);
 int getint(FILE *fp, int *v);
 int getstring(FILE *fp, char os[]);
+
+
+/*
+ * 6.0 compute standard deviate of each feature element (there will be 9 sds 
+ *  since we have 9 feature type)
+*/
+
+vector<float> compute_standevs(vector<vector<float>> fis);
+
+
+/*
+ * 6.1 compute sclaed euclidean distance
+*/
+float compute_scaled_ssd(vector<float> &ft, vector<float> &fi,
+                         vector<float> &standevs);
 #endif
 

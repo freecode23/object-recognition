@@ -386,31 +386,15 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
     }
 }
 
-vector<float> compute_sd(vector<vector<float>> fis) {
-    vector<float> means;
-    vector<float> sums;
-    vector<float> standard_devs;
-    int n = fis.size();
-    cout << "total images " << n << endl;
+// float compute_ssd(vector<float> &ft, vector<float> &fi) {
+    
+//     float error = 0;
+//     for (int i = 0; i < ft.size(); i++) {
+//         error += (ft[i] - fi[i]) * (ft[i] - fi[i]);
+//     }
+//     return error;
+// }
 
-    for (int i = 0; i < fis.at(0).size(); i++) { // for each features(9)
-        float sum_feat_i = 0;
-        for(vector<float> image_data : fis){ // for each image
-            sum_feat_i += image_data.at(i); // sum the feature_i of all images
-            cout << "feat=" << i << " val=" <<image_data.at(i) << " sum=" << sum_feat_i <<  endl;
-
-        }
-        sums.push_back(sum_feat_i);// push back the sum of the 9 features
-    }
-
-    for(float sum : sums){ // there are 9 sums
-        float sd = sum / n; // sum of each feat_element for 48 images / number of images
-        cout << "total sum=" << sum;
-        cout << "total sd=" << sd << endl;
-        standard_devs.push_back(sd);
-    }
-    return standard_devs;
-}
 /*
  * task 6
  */
@@ -423,13 +407,31 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
 
     read_features_from_csv(fis_csv_dir, names, labels, fis, 0);
     int i = 0;
-    // to debug
+    // check reacding correct files
     // for(vector<float> fi : fis){
     //     cout << i <<" " << fi.at(8) << " ";
     //     cout << " imgName="  << names.at(i) << " ";
     //     cout << " label=" << labels.at(i) << " " << endl;
     //     i  +=1;
     // }
-
-    compute_sd(fis);
+    // int i = 0;
+    i = 0;
+    vector<float> standevs = compute_standevs(fis);
+    vector<float> scaled_ssds;
+    cout << "ft=";
+    for(float fval : ft){
+        cout << fval << " ";
+    }
+    cout << endl;
+    for (vector<float> fi : fis) {  // for each image data in database
+        // calculate its distance from ft
+        float scaled_ssd = compute_scaled_ssd(ft, fi, standevs);
+        cout << i << " scal_ssd=" << scaled_ssd << endl;
+        i += 1;
+        scaled_ssds.push_back(scaled_ssd);
+    }
+    double min_ele_idx = min_element(scaled_ssds.begin(), scaled_ssds.end()) -
+                         scaled_ssds.begin();
+    cout << "index: " << min_ele_idx << " "<< labels.at(min_ele_idx) << endl;
+    // get min of scaled ssd
 }
