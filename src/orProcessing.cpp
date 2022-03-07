@@ -8,13 +8,14 @@
 // Sherly Hartono
 //**********************************************************************************************************************
 
-#include "orProcessing.hpp"
+
 
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/utility.hpp>
 
 #include "orUtil.hpp"
+#include "orProcessing.hpp"
 
 using namespace std;
 

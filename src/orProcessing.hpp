@@ -11,8 +11,6 @@
 #define OR_H
 
 #include <opencv2/opencv.hpp>
-#include "orUtil.hpp"
-#include "filter.hpp"
 using namespace std;
 
 /*

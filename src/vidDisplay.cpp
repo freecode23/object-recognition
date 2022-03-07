@@ -3,7 +3,7 @@
 #include <string>
 #include "filter.hpp"
 #include "orProcessing.hpp"
-#include "orCsvUtil.hpp"
+#include "orCsvUtil.h"
 #include "orUtil.hpp"
 #include "trainMode.hpp"
 #define PI 3.14159265;
@@ -217,6 +217,7 @@ int main(int argc, char *argv[]) {
     }
     char mode;
     cout << "enter mode: v video, i image, t train" << endl;
+
     cin >> mode;
     if(mode == 'v'){
         videoMode();

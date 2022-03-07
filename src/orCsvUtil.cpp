@@ -14,6 +14,7 @@ std::vector of floats for the data
 #include <cstdio>
 #include <cstring>
 #include <vector>
+#include "orCsvUtil.h"
 using namespace std;
 
 
@@ -31,8 +32,8 @@ using namespace std;
   The function returns a non-zero value in case of an error.
  */
 int append_image_data_csv(char *csv_filepath, char *image_filename,
-                          char *label_name, std::vector<float> &feature_vector,
-                          int reset_file) {
+                          const char *label_name,
+                          std::vector<float> &feature_vector, int reset_file) {
     char buffer[256];
     char mode[8];
     FILE *fp;

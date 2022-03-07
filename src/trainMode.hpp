@@ -1,10 +1,7 @@
 #include <sys/stat.h>
-
 #include <iostream>
+#include "orCsvUtil.h"
 
-#include "filter.hpp"
-#include "orProcessing.hpp"
-#include "orUtil.hpp"
 using namespace cv;
 using namespace std;
 #ifndef TRAIN_MODE_H
@@ -15,62 +12,6 @@ const int maxRegions = 6;
 enum filter { none, thresh, clean, segment, features, getLabel };
 enum stuff { null, glasses, lwrench, mascara, noodle, plier, wire };
 
-/*
-  Given a filename, and image filename, and the image features, by
-  default the function will append a line of data to the CSV format
-  file.  If reset_file is true, then it will open the file in 'write'
-  mode and clear the existing contents.
-
-  The image filename is written to the first position in the row of
-  data. The values in image_data are all written to the file as
-  floats.
-
-  The function returns a non-zero value in case of an error.
- */
-int append_image_data_csv(char *csv_filepath, char *image_filename,
-                          const char *label_name,
-                          std::vector<float> &feature_vector, int reset_file) {
-    char buffer[256];
-    char mode[8];
-    FILE *fp;
-
-    strcpy(mode, "a");
-
-    if (reset_file) {
-        strcpy(mode, "w");
-    }
-
-    fp = fopen(csv_filepath, mode);
-    if (!fp) {
-        printf("Unable to open output file %s\n", csv_filepath);
-        exit(-1);
-    }
-
-    // write the filename and the feature vector to the CSV file
-    // 1. filename
-    strcpy(buffer, image_filename);
-    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
-
-    // 2. label name
-    sprintf(buffer, ",%s", label_name);
-    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
-
-    // 3. feature vector
-    // loop through feature vector
-    for (int i = 0; i < feature_vector.size(); i++) {
-        char tmp[256];
-        // store feature vector in string 'temp' with 4 decimal point
-        sprintf(tmp, ",%.4f", feature_vector[i]);
-        // write to tmp to our file (file path)
-        std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
-    }
-
-    std::fwrite("\n", sizeof(char), 1, fp);  // EOL
-
-    fclose(fp);
-
-    return (0);
-}
 
 string getNewFileName() {
     // create img name
@@ -86,7 +27,7 @@ string getNewFileName() {
 
     while (isFileExist) {
         fileIdx += 1;
-        img_name = "ownClose1_";
+        img_name = "ownClose1";
         img_name.append(to_string(fileIdx)).append(".png");
 
         path_name = "res/own/";
