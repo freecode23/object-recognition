@@ -85,13 +85,13 @@ int append_image_data_csv(char *csv_filepath, char *image_filename,
 }
 
 string getNewFileName() {
-    // create img name
+    // create img namek
     int fileIdx = 0;
     string img_name = "own";
     img_name.append(to_string(fileIdx)).append(".png");
 
     // create full path
-    string path_name = "res/validate/";
+    string path_name = "res/owntrial/";
     path_name.append(img_name);
     struct stat buffer;
     bool isFileExist = (stat(path_name.c_str(), &buffer) == 0);
@@ -101,7 +101,7 @@ string getNewFileName() {
         img_name = "own";
         img_name.append(to_string(fileIdx)).append(".png");
 
-        path_name = "res/validate/";
+        path_name = "res/owntrial/";
         path_name.append(img_name);
         isFileExist = (stat(path_name.c_str(), &buffer) == 0);
     }
