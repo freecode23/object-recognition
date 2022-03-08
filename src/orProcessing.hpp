@@ -78,7 +78,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
  * Task 6: classify
  *
  */
-void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir);
+void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir, cv::Point &centroid_of_interest);
 
 
 #endif

@@ -386,21 +386,13 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
     }
 }
 
-// float compute_ssd(vector<float> &ft, vector<float> &fi) {
-
-//     float error = 0;
-//     for (int i = 0; i < ft.size(); i++) {
-//         error += (ft[i] - fi[i]) * (ft[i] - fi[i]);
-//     }
-//     return error;
-// }
 
 /*
  * task 6
  */
 
 void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
-                 char *fis_csv_dir) {
+                 char *fis_csv_dir, cv::Point &centroid_of_interest) {
     vector<char *> names;
     vector<char *> labels;
     vector<vector<float>> fis;
@@ -426,22 +418,32 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
     for (vector<float> fi : fis) {  // for each image data in database
         // calculate its distance from ft
         float scaled_ssd = compute_scaled_ssd(ft, fi, standevs);
-        cout << i << " scal_ssd=" << scaled_ssd << endl;
+        // cout << i << " scal_ssd=" << scaled_ssd << endl;
         i += 1;
         scaled_ssds.push_back(scaled_ssd);
     }
     // get min of scaled ssd
     double min_ele_idx = min_element(scaled_ssds.begin(), scaled_ssds.end()) -
                          scaled_ssds.begin();
-    cout << "index: " << min_ele_idx << " " << labels.at(min_ele_idx) << endl;
+    // cout << "index: " << min_ele_idx << " " << labels.at(min_ele_idx) << endl;
 
     src.copyTo(dst);
-    // cv::putText(dst, labels.at(min_ele_idx),
-    //             cv::Point(centroid_of_interest.x,
-    //                       centroid_of_interest.y + 400),       // Coordinates (Bottom-left corner - give space of 400
-    //                                       // of the text string in the image)
-    //             cv::FONT_HERSHEY_DUPLEX,  // Font
-    //             0.8,                      // Scale. 2.0 = 2x bigger
-    //             cv::Scalar(255, 0, 0),    // BGR Color
-    //             1,                        // Line Thickness
-    //             cv::LINE_4);
+    cv::putText(dst, labels.at(min_ele_idx),
+                cv::Point(centroid_of_interest.x + 80,
+                          centroid_of_interest.y + 50),       // Coordinates (Bottom-left corner - give space of 400
+                                          // of the text string in the image)
+                cv::FONT_HERSHEY_DUPLEX,  // Font
+                1.2,                      // Scale. 2.0 = 2x bigger
+                cv::Scalar(255, 20, 20),    // BGR Color
+                1,                        // Line Thickness
+                cv::LINE_4);
+
+ }
+
+
+
+ /*
+ * task 7 knn
+ */
+
+void knn()

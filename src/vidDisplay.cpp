@@ -75,19 +75,21 @@ int videoMode(char *csv_dir) {
             compute_features(srcFrame, dstFrame, randomColors, maxRegions,
                              feature_vec, out_centroid_of_interest);
 
-            int id = 0;
-            for (float feat : feature_vec) {
-                cout << id << ": " << feat << ", ";
-                id += 1;
-            }
-            cout << "\n" << endl;
+            // int id = 0;
+            // for (float feat : feature_vec) {
+            //     cout << id << ": " << feat << ", ";
+            //     id += 1;
+            // }
+            // cout << "\n" << endl;
         } else if (op == classify) {
-            vector<float> feature_vec;
-             cv::Point out_centroid_of_interest;
-            compute_features(srcFrame, dstFrame, randomColors, maxRegions,
-                             feature_vec, out_centroid_of_interest);
-
-            // classify(srcFrame, dstFrame, csv_dir);
+            // get current frame vector
+            vector<float> ft;
+            cv::Point out_centroid_of_interest; 
+            cv::Mat interFrame;
+            // will draw bounding box and perc+fill, and width height ratio
+            compute_features(srcFrame, interFrame, randomColors, maxRegions,
+                             ft,  out_centroid_of_interest); 
+            classifying(interFrame, dstFrame, ft, csv_dir, out_centroid_of_interest);
         } else {  // op == none
             srcFrame.copyTo(dstFrame);
         }
@@ -187,7 +189,7 @@ void imageMode(char* csv_dir) {
             // will draw bounding box and perc+fill, and width height ratio
             compute_features(srcImage1, interImage1, randomColors, maxRegions,
                              ft,  out_centroid_of_interest); 
-            classifying(interImage1, dstImage1, ft, csv_dir);
+            classifying(interImage1, dstImage1, ft, csv_dir, out_centroid_of_interest);
         } else {  // op == none
             srcImage1.copyTo(dstImage1);
         }
