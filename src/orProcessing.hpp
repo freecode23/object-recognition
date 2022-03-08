@@ -81,4 +81,12 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
 void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir, cv::Point &centroid_of_interest);
 
 
+
+/*
+ * Task 7: classify_knn
+ *
+ */
+
+void classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
+                  char *fis_csv_dir, cv::Point &centroid_of_interest);
 #endif

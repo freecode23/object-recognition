@@ -8,7 +8,7 @@ using namespace std;
 
 vector<cv::Vec3b> randomColors;
 const int maxRegions = 6;
-enum filter { none, thresh, clean, segment, features, getLabel, classify};
+enum filter { none, thresh, clean, segment, features, getLabel, classify, knn};
 enum stuff { null, glasses, lwrench, mascara, noodle, plier, wire };
 
 /*
@@ -69,7 +69,6 @@ int append_image_data_csv(char *csv_filepath, char *image_filename,
 
     return (0);
 }
-
 
 
 string getNewFileName() {

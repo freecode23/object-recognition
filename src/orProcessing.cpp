@@ -365,8 +365,9 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
         // write features on the image
         cv::putText(dst, info,
                     cv::Point(out_centroid_of_interest.x,
-                    //Coordinates (Bottom-left corner  of the text string in the image)
-                              out_centroid_of_interest.y + i + 100),                            
+                              // Coordinates (Bottom-left corner  of the text
+                              // string in the image)
+                              out_centroid_of_interest.y + i + 100),
                     cv::FONT_HERSHEY_DUPLEX,  // Font
                     0.8,                      // Scale. 2.0 = 2x bigger
                     cv::Scalar(0, 255, 0),    // BGR Color
@@ -385,7 +386,6 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
                  2);
     }
 }
-
 
 /*
  * task 6
@@ -425,25 +425,118 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
     // get min of scaled ssd
     double min_ele_idx = min_element(scaled_ssds.begin(), scaled_ssds.end()) -
                          scaled_ssds.begin();
-    // cout << "index: " << min_ele_idx << " " << labels.at(min_ele_idx) << endl;
+    // cout << "index: " << min_ele_idx << " " << labels.at(min_ele_idx) <<
+    // endl;
 
     src.copyTo(dst);
-    cv::putText(dst, labels.at(min_ele_idx),
-                cv::Point(centroid_of_interest.x + 80,
-                          centroid_of_interest.y + 50),       // Coordinates (Bottom-left corner - give space of 400
-                                          // of the text string in the image)
-                cv::FONT_HERSHEY_DUPLEX,  // Font
-                1.2,                      // Scale. 2.0 = 2x bigger
-                cv::Scalar(255, 20, 20),    // BGR Color
-                1,                        // Line Thickness
-                cv::LINE_4);
+    cv::putText(
+        dst, labels.at(min_ele_idx),
+        cv::Point(centroid_of_interest.x + 80,
+                  centroid_of_interest.y +
+                      50),  // Coordinates (Bottom-left corner - give space of
+                            // 400 of the text string in the image)
+        cv::FONT_HERSHEY_DUPLEX,  // Font
+        1.2,                      // Scale. 2.0 = 2x bigger
+        cv::Scalar(255, 20, 20),  // BGR Color
+        1,                        // Line Thickness
+        cv::LINE_4);
+}
 
- }
+void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
+                                 vector<float> &scaled_ssds,
+                                 vector<string> &unique_labels) {
+    // label=glasses
+    // label=lwrench
+    // label=mascara
+    // label=noodle
+    // label=plier
+    // label=wire
 
+    // 1. get unique labels  and size
+    for (char *label : ssd_labels) {
+        string s = label;
+        unique_labels.push_back(label);
+    }
+    sort(unique_labels.begin(), unique_labels.end());
+    unique_labels.erase(unique(unique_labels.begin(), unique_labels.end()),
+                        unique_labels.end());
 
+    
+    // print all ssd in database
+    int i = 0;
+    cout << "\nunique labels"<< endl;
+    for (string label : unique_labels) {  // for each image data in database
+        cout<< i << " " << label << endl;
+        i++;
+    }
+    // cout << "label size="<< ssds_by_label.size() << endl;
 
- /*
+    // 2. group ssd by label
+    vector<vector<float>> ssds_by_label;
+
+    //insert empty vector so it doesnt give uncaught execption error
+    for(int i = 0; i < unique_labels.size(); i++){
+        vector<float> empty_vec;
+        ssds_by_label.push_back(empty_vec);
+    }
+    
+    // push ssd to vector by label
+    for (int i = 0; i < unique_labels.size(); i++) {   // for each label
+        for (int j = 0; j < scaled_ssds.size(); j++) {  // for each ssd
+            // if unique label matches the ssds label
+            if (unique_labels.at(i) == ssd_labels.at(j)) {
+                // push it to a vector at index i
+                // cout << unique_labels.at(i) << "=" << scaled_ssds.at(j);
+                ssds_by_label.at(i).push_back(scaled_ssds.at(j));
+                
+            }
+        }
+    }
+
+    // 4. sort all ssds by label
+    for(auto ssd_vec : ssds_by_label){
+        sort(ssd_vec.begin(), ssd_vec.end());
+    }
+
+    i = 0;
+    cout << "\ncategorised:"<< endl;
+    for (int i = 0; i < ssds_by_label.size(); i++) {
+        cout <<"cat="<< i << " " << unique_labels.at(i) <<" ssd=";
+        for(auto val : ssds_by_label.at(i)){
+             cout << val << ", ";
+        }
+        cout << endl;
+    }
+   
+}
+/*
  * task 7 knn
  */
+void classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
+                  char *fis_csv_dir, cv::Point &centroid_of_interest) {
+    vector<char *> names;
+    vector<char *> labels;
+    vector<vector<float>> fis;
 
-void knn()
+    // 1. get all features data points
+    read_features_from_csv(fis_csv_dir, names, labels, fis, 0);
+
+    // 2. compute scaled eucl distance for all data points
+    int i = 0;
+    vector<float> standevs = compute_standevs(fis);
+    vector<float> scaled_ssds;
+    cout << "\nall distances:"<< endl;
+    for (vector<float> fi : fis) {  // for each image data in database
+        // calculate its distance from ft
+        float scaled_ssd = compute_scaled_ssd(ft, fi, standevs);
+        i += 1;
+        scaled_ssds.push_back(scaled_ssd);
+        cout << i << " ssd=" << scaled_ssd << endl;
+    }
+
+    // 3. group features by label
+    vector<string> unique_labels;
+    get_vectors_of_ssd_by_label(labels, scaled_ssds, unique_labels);
+   
+
+}

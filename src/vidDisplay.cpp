@@ -41,7 +41,7 @@ int videoMode(char *csv_dir) {
 
     for (;;) {
         // 6. get a new frame from the camera, treat as a stream
-        *capdev >> srcFrame;  
+        *capdev >> srcFrame;
 
         if (srcFrame.empty()) {
             printf("srcFrame is empty\n");
@@ -81,16 +81,21 @@ int videoMode(char *csv_dir) {
             //     id += 1;
             // }
             // cout << "\n" << endl;
-        } else if (op == classify) {
+        } else if (op == classify) {  // task 6. nn
             // get current frame vector
             vector<float> ft;
-            cv::Point out_centroid_of_interest; 
+            cv::Point out_centroid_of_interest;
             cv::Mat interFrame;
             // will draw bounding box and perc+fill, and width height ratio
-            compute_features(srcFrame, interFrame, randomColors, maxRegions,
-                             ft,  out_centroid_of_interest); 
-            classifying(interFrame, dstFrame, ft, csv_dir, out_centroid_of_interest);
-        } else {  // op == none
+            compute_features(srcFrame, interFrame, randomColors, maxRegions, ft,
+                             out_centroid_of_interest);
+            classifying(interFrame, dstFrame, ft, csv_dir,
+                        out_centroid_of_interest);
+        }else if (op == knn)  // task 7. knn
+        {
+
+        } else {  
+            // op == none
             srcFrame.copyTo(dstFrame);
         }
         cv::imshow("Video", dstFrame);
@@ -101,7 +106,7 @@ int videoMode(char *csv_dir) {
         if (key == 'q') {
             cout << "Quit program." << endl;
             break;
-        } else if (key == 'j')  // save single image to jpeg
+        } else if (key == 'j') 
         {
             cout << "saving file";
             string path_name = "res/own/";
@@ -109,7 +114,7 @@ int videoMode(char *csv_dir) {
             path_name.append(img_name);
 
             cv::imwrite(path_name, dstFrame);
-        } else if (key == 'r')  // record video to avi
+        } else if (key == 'r')  
         {
             cout << "Recording starts.. " << endl;
             record = true;
@@ -129,10 +134,14 @@ int videoMode(char *csv_dir) {
         {
             cout << "compute features.." << endl;
             op = features;
-        } else if (key == 'y')  // task 6. classify
+        } else if (key == 'y')  // task 6. nn
         {
             cout << "classsify.." << endl;
             op = classify;
+        } else if (key == 'k')  // task 7. knn
+        {
+            cout << "classsify knn.." << endl;
+            op = knn;
         } else if (key == 32) {
             cout << "Reset color..." << endl;
             op = none;
@@ -148,7 +157,7 @@ int videoMode(char *csv_dir) {
     return (0);
 }
 
-void imageMode(char* csv_dir) {
+void imageMode(char *csv_dir) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
 
@@ -180,17 +189,30 @@ void imageMode(char* csv_dir) {
             cv::Point out_centroid_of_interest;
             compute_features(srcImage1, dstImage1, randomColors, maxRegions,
                              feature_vec, out_centroid_of_interest);
-        }else if (op == classify) {
-
+        } else if (op == classify) {
             // get feature vector to compare fx
             vector<float> ft;
-            cv::Point out_centroid_of_interest; 
+            cv::Point out_centroid_of_interest;
             cv::Mat interImage1;
             // will draw bounding box and perc+fill, and width height ratio
             compute_features(srcImage1, interImage1, randomColors, maxRegions,
-                             ft,  out_centroid_of_interest); 
-            classifying(interImage1, dstImage1, ft, csv_dir, out_centroid_of_interest);
-        } else {  // op == none
+                             ft, out_centroid_of_interest);
+            classifying(interImage1, dstImage1, ft, csv_dir,
+                        out_centroid_of_interest);
+        }else if (op == knn)  // task 7. knn
+        {
+            // get feature vector to compare fx
+            vector<float> ft;
+            cv::Point out_centroid_of_interest;
+            cv::Mat interImage1;
+            // will draw bounding box and perc+fill, and width height ratio
+            compute_features(srcImage1, interImage1, randomColors, maxRegions,
+                             ft, out_centroid_of_interest);
+
+            classify_knn(interImage1, dstImage1, ft, csv_dir,
+                        out_centroid_of_interest);
+
+        }  else {  // op == none
             srcImage1.copyTo(dstImage1);
         }
         cv::namedWindow("img1", cv::WINDOW_FREERATIO);
@@ -204,35 +226,39 @@ void imageMode(char* csv_dir) {
         } else if (k == 't')  // 2. threshold
         {
             op = thresh;
-        } else if (k == 'c')  // 5. Reset to original img
+        } else if (k == 'c')  // 3. clean
         {
             cout << "clean" << endl;
             op = clean;
-        } else if (k == 's')  // 5. Reset to original img
+        } else if (k == 's')  // 4. segment
         {
             cout << "segmenting" << endl;
             op = segment;
-        } else if (k == 'f')  // task 2. clean up
+        } else if (k == 'f')  // 5. compute all image features
         {
             cout << "compute features" << endl;
             op = features;
-        } else if (k == 'y')  // task 6. classify
+        } else if (k == 'y')  // task 6. nn
         {
             cout << "classsify.." << endl;
             op = classify;
+        }else if (k == 'k')  // task 7. knn
+        {
+            cout << "classsify knn.." << endl;
+            op = knn;
         } else if (k == 'j') {
             cout << "save image" << endl;
             string imgName = getNewFileName();
             cv::imwrite(imgName, dstImage1);
-        } else if (k == 32)  // 5. Reset to original image
+        } else if (k == 32)  
         {
             cout << "reset" << endl;
             k = -1;
             op = none;
         } else if (k == -1) {
-            continue;  // 7. normally -1 returned,so don't print it
+            continue;  
         } else {
-            cout << k << endl;  // 8. else print its value
+            cout << k << endl;  
         }
     }
 }
@@ -246,7 +272,6 @@ int main(int argc, char *argv[]) {
     }
     char mode;
     cout << "enter mode: v video, i image, t train" << endl;
-
 
     cin >> mode;
     if (mode == 'v') {
