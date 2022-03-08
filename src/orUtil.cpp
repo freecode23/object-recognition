@@ -9,15 +9,13 @@
 //**********************************************************************************************************************
 
 #include "orUtil.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/utility.hpp>
 using namespace std;
 
-
 // 3.0
-
-
 
 // 3.1 (print areas of all regions)
 vector<int> get_top_N_largest_areas_index(vector<int> areas, int region_num) {
@@ -29,7 +27,7 @@ vector<int> get_top_N_largest_areas_index(vector<int> areas, int region_num) {
     for (int i = 0; i < areas.size(); ++i) {
         areas_indices.push(std::pair<int, int>(areas[i], i));
     }
-    if(region_num > areas.size()){
+    if (region_num > areas.size()) {
         region_num = areas.size();
     }
     for (int i = 0; i < region_num; i++) {
@@ -109,7 +107,8 @@ int get_id_with_most_center_centroids(vector<int> &img_center,
     pair<int, double> entry_with_min_value =
         find_entry_with_smallest_value(indices_distances);
 
-    // cout << "\nEntry with most center centroids: " << entry_with_min_value.first
+    // cout << "\nEntry with most center centroids: " <<
+    // entry_with_min_value.first
     //      << " = " << entry_with_min_value.second << endl;
 
     return entry_with_min_value.first;
@@ -189,7 +188,6 @@ void get_contour_of_interest(cv::Mat binary_img,
     int cont_id_of_interest = get_id_with_largest_contour_area(contours);
     out_contour = contours[cont_id_of_interest];
 }
-
 
 /*
   reads a string from a CSV file. the 0-terminated string is returned in the
@@ -274,8 +272,6 @@ int getfloat(FILE *fp, float *v) {
     return (eol);  // return true if eol
 }
 
-
-
 /*
   Given a file with the format of a string as the first column and
   floating point numbers as the remaining columns, this function
@@ -293,10 +289,8 @@ int getfloat(FILE *fp, float *v) {
   The function returns a non-zero value if something goes wrong.
  */
 int read_features_from_csv(char *src_csv, vector<char *> &result_names,
-                        vector<char *> &result_labels,
-                        vector<vector<float>> &result_fis,
-                        int echo_file) {
-
+                           vector<char *> &result_labels,
+                           vector<vector<float>> &result_fis, int echo_file) {
     FILE *fp;
     float fval;
     char single_imgname[256];
@@ -329,7 +323,7 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
         // add to vectors
         char *flabel = new char[strlen(single_label) + 1];
         strcpy(flabel, single_label);
-        result_labels.push_back(flabel);        
+        result_labels.push_back(flabel);
 
         // 3. get the single fi
         for (;;) {
@@ -341,14 +335,11 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
         // add to vectors
         result_fis.push_back(single_fi);
         // printf("read %lu features\n", dvec.size() );
-
-        
     }
     fclose(fp);
     printf("Finished reading CSV file\n");
     return (0);
 }
-
 
 vector<float> compute_standevs(vector<vector<float>> fis) {
     int n = fis.size();
@@ -368,9 +359,8 @@ vector<float> compute_standevs(vector<vector<float>> fis) {
     // calculate averages
     vector<float> mus;
     for (float sum : sums) {  // there are 9 sums
-        float avg =
-            sum /
-            n;  // sum of each feat_element for 48 images / number of images
+         // sum of each feat_element for 48 images / number of images
+        float avg = sum / n;
         // cout << "total_avgs=" << avg << endl;
         mus.push_back(avg);
     }
@@ -381,8 +371,8 @@ vector<float> compute_standevs(vector<vector<float>> fis) {
         double sum_squared = 0;
         for (vector<float> image_data : fis) {  // for each image(48)
             double x_i = image_data.at(i);
-            double mu_i = mus.at(i); 
-            sum_squared+= (x_i - mu_i) * (x_i - mu_i);
+            double mu_i = mus.at(i);
+            sum_squared += (x_i - mu_i) * (x_i - mu_i);
             // cout << "feat=" << i << " sumsquared=" << sum_squared <<endl;
         }
         double sd = sqrt(sum_squared / n);

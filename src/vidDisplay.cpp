@@ -9,7 +9,10 @@
 #include "trainMode.hpp"
 #define PI 3.14159265;
 using namespace std;
-
+// to classify, argument should be a full path including the training data to use
+// ./src/vidDisplay res/train/label_train.csv
+// to train or collect validation data do path to put the images and csv file
+// ./src/vidDisplay res/train/ or ./src/vidDisplay res/validate/
 int videoMode(char *csv_dir) {
     cv::VideoCapture *capdev;
     // 1. Open the video device
@@ -169,9 +172,8 @@ void imageMode(char *csv_dir) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
 
-    srcImage1 = cv::imread("res/sample/mas.png", 1);
-    // srcImage1 = cv::imread("res/owntrial/own4.png", 1);
-
+    // srcImage1 = cv::imread("res/sample/mas.png", 1);
+    srcImage1 = cv::imread("res/owntrial/own26.png", 1);
     filter op = none;
 
     while (1) {
