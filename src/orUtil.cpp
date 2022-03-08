@@ -391,6 +391,7 @@ float compute_scaled_ssd(vector<float> &ft, vector<float> &fi,
         // compute its scaledssd
         double term = (ft.at(i) - fi.at(i)) / standevs.at(i);
         scaled_ssd += (term * term);
+        scaled_ssd /= ft.size(); // divide by number of features
     }
     return scaled_ssd;
 }
