@@ -12,9 +12,23 @@ using namespace std;
 
 vector<cv::Vec3b> randomColors;
 const int maxRegions = 6;
-enum filter { none, thresh, clean, segment, features, getLabel, classify, knn};
-enum stuff { null, glasses, knife, noodle, mascara, plier, scissors };
-
+enum filter { none, thresh, clean, segment, features, getLabel, classify, knn };
+enum stuff {
+    null,
+    browncomb,
+    charger,
+    glasses,
+    hairgel,
+    keypad,
+    lwrench,
+    mascara,
+    nailclipper,
+    noodle,
+    plier,
+    spoon,
+    tape,
+    wire
+};
 /*
   Given a filename, and image filename, and the image features, by
   default the function will append a line of data to the CSV format
@@ -77,7 +91,7 @@ string getNewFileName() {
     img_name.append(to_string(fileIdx)).append(".png");
 
     // create full path
-    string path_name = "res/own/";
+    string path_name = "res/validate/";
     path_name.append(img_name);
     struct stat buffer;
     bool isFileExist = (stat(path_name.c_str(), &buffer) == 0);
@@ -87,13 +101,38 @@ string getNewFileName() {
         img_name = "own";
         img_name.append(to_string(fileIdx)).append(".png");
 
-        path_name = "res/own/";
+        path_name = "res/validate/";
         path_name.append(img_name);
         isFileExist = (stat(path_name.c_str(), &buffer) == 0);
     }
     // file does not exists retunr this name
     return img_name;
 }
+
+// string getNewFileNameWithLabel(string labelName) {
+//     // create img name
+//     int fileIdx = 0;
+//     string img_name = labelName;
+//     img_name.append(to_string(fileIdx)).append(".png");
+
+//     // create full path
+//     string path_name = "res/train/";
+//     path_name.append(img_name);
+//     struct stat buffer;
+//     bool isFileExist = (stat(path_name.c_str(), &buffer) == 0);
+
+//     while (isFileExist) {
+//         fileIdx += 1;
+//         img_name = labelName;
+//         img_name.append(to_string(fileIdx)).append(".png");
+
+//         path_name = "res/train/";
+//         path_name.append(img_name);
+//         isFileExist = (stat(path_name.c_str(), &buffer) == 0);
+//     }
+//     // file does not exists retunr this name
+//     return img_name;
+// }
 
 int trainMode() {
     // SET UP
@@ -115,7 +154,7 @@ int trainMode() {
 
     printf("Expected size: %d %d\n", refS.width, refS.height);
     // 3. Create video writer object filename, format, size
-    cv::VideoWriter output("res/own/myout.avi",
+    cv::VideoWriter output("res/owntrial/myout.avi",
                            cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 5,
                            refS);
     bool record = false;
@@ -128,7 +167,7 @@ int trainMode() {
     filter op = none;  // operation
     stuff obj = null;  // object label
 
-    char csv_filepath[] = "res/label.csv";
+    char csv_filepath[] = "res/validate/label_validate.csv";
     // reset file , uncomment if we want to reset
     // FILE *fp = fopen(csv_filepath, "w");
     // if (!fp) {
@@ -157,43 +196,53 @@ int trainMode() {
             compute_features(srcFrame, dstFrame, randomColors, maxRegions,
                              feature_vec, out_centroid_of_interest);
 
-            // enum stuff { null, glasses, knife, noodle, mascara, plier };
-
-            if (obj != null) {  // if we are labelling, save it as image
-
-                saved_img_name = getNewFileName();
-                char *image_filepath = (char *)saved_img_name.data();
-                string path_name = "res/own/";
-                cv::imwrite(path_name.append(saved_img_name), dstFrame);
-
+            if (obj != null) {  // if we are labelling
                 const char *label_name;
-                if (obj == mascara) {
-                    label_name = "mascara";
+                if (obj == browncomb) {
+                    label_name = "browncomb";
+                } else if (obj == charger) {
+                    label_name = "charger";
                 } else if (obj == glasses) {
                     label_name = "glasses";
-                } else if (obj == knife) {
-                    label_name = "knife,";
+                } else if (obj == hairgel) {
+                    label_name = "hairgel";
+                } else if (obj == keypad) {
+                    label_name = "keypad";
+                } else if (obj == lwrench) {
+                    label_name = "lwrench";
+                } else if (obj == mascara) {
+                    label_name = "mascara";
+                } else if (obj == nailclipper) {
+                    label_name = "nailclipper";
                 } else if (obj == noodle) {
                     label_name = "noodle";
                 } else if (obj == plier) {
                     label_name = "plier";
-                } else if (obj == scissors) {
-                    label_name = "scissors";
+                } else if (obj == spoon) {
+                    label_name = "spoon";
+                } else if (obj == tape) {
+                    label_name = "tape";
+                } else if (obj == wire) {
+                    label_name = "wire";
                 }
 
+                // create the full file path
+                saved_img_name = getNewFileName();
+                char *image_filepath = (char *)saved_img_name.data();
+                string path_name = "res/validate/";
+                cv::imwrite(path_name.append(saved_img_name), dstFrame);
+
+                // save the feature vector to csv
                 append_image_data_csv(csv_filepath, image_filepath, label_name,
                                       feature_vec, 0);
+
+                // reset object choice
                 obj = null;
             }
-
-            // reset object choice
-
         } else {  // display frame as is
             srcFrame.copyTo(dstFrame);
         }
-
         cv::imshow("Video", dstFrame);
-
         // 4. get key strokes
         char key = cv::waitKey(5);
         if (key == 'q') {
@@ -211,15 +260,30 @@ int trainMode() {
         } else if (key == 'a') {
             cout << "get label" << endl;
             op = getLabel;
-        } else if (key == 'm') {
-            cout << "mascara" << endl;
-            obj = mascara;
+        } else if (key == 'b') {
+            cout << "browncomb" << endl;
+            obj = browncomb;
+        } else if (key == 'c') {
+            cout << "charger" << endl;
+            obj = charger;
         } else if (key == 'g') {
             cout << "glasses" << endl;
             obj = glasses;
+        } else if (key == 'h') {
+            cout << "hairgel" << endl;
+            obj = hairgel;
         } else if (key == 'k') {
-            cout << "knife" << endl;
-            obj = knife;
+            cout << "keypad" << endl;
+            obj = keypad;
+        } else if (key == 'l') {
+            cout << "lwrench" << endl;
+            obj = lwrench;
+        } else if (key == 'm') {
+            cout << "mascara" << endl;
+            obj = mascara;
+        } else if (key == 'i') {
+            cout << "nailclipper" << endl;
+            obj = nailclipper;
         } else if (key == 'n') {
             cout << "noodle" << endl;
             obj = noodle;
@@ -227,8 +291,14 @@ int trainMode() {
             cout << "plier" << endl;
             obj = plier;
         } else if (key == 's') {
-            cout << "scissors" << endl;
-            obj = scissors;
+            cout << "spoon" << endl;
+            obj = spoon;
+        } else if (key == 't') {
+            cout << "tape" << endl;
+            obj = tape;
+        } else if (key == 'w') {
+            cout << "wire" << endl;
+            obj = wire;
         } else if (key == -1) {
             continue;
         } else {

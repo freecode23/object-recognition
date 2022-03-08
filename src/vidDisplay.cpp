@@ -29,7 +29,7 @@ int videoMode(char *csv_dir) {
 
     printf("Expected size: %d %d\n", refS.width, refS.height);
     // 3. Create video writer object filename, format, size
-    cv::VideoWriter output("res/trial/myout.avi",
+    cv::VideoWriter output("res/owntrial/myout.avi",
                            cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 5,
                            refS);
     bool record = false;
@@ -91,20 +91,20 @@ int videoMode(char *csv_dir) {
                              out_centroid_of_interest);
             classifying(interFrame, dstFrame, ft, csv_dir,
                         out_centroid_of_interest);
-        }else if (op == knn)  // task 7. knn
-        {   // get feature vector to compare fx
+        } else if (op == knn)  // task 7. knn
+        {                      // get feature vector to compare fx
             vector<float> ft;
             cv::Point out_centroid_of_interest;
             cv::Mat interFrame;
             // will draw bounding box and perc+fill, and width height ratio
-            compute_features(srcFrame, interFrame, randomColors, maxRegions,
-                             ft, out_centroid_of_interest);
+            compute_features(srcFrame, interFrame, randomColors, maxRegions, ft,
+                             out_centroid_of_interest);
             // compute distances between our frame feature and the features
             // in csv database provided as argument
             classify_knn(interFrame, dstFrame, ft, csv_dir,
-                        out_centroid_of_interest);
+                         out_centroid_of_interest);
 
-        } else {  
+        } else {
             // op == none
             srcFrame.copyTo(dstFrame);
         }
@@ -116,16 +116,14 @@ int videoMode(char *csv_dir) {
         if (key == 'q') {
             cout << "Quit program." << endl;
             break;
-        } else if (key == 'j') 
-        {
+        } else if (key == 'j') {
             cout << "saving file";
-            string path_name = "res/trial/";
+            string path_name = "res/owntrial/";
             string img_name = getNewFileName();
             path_name.append(img_name);
 
             cv::imwrite(path_name, dstFrame);
-        } else if (key == 'r')  
-        {
+        } else if (key == 'r') {
             cout << "Recording starts.. " << endl;
             record = true;
         } else if (key == 't')  // task 1. thresholding hsv
@@ -172,7 +170,7 @@ void imageMode(char *csv_dir) {
     cv::Mat dstImage1;
 
     srcImage1 = cv::imread("res/sample/mas.png", 1);
-    // srcImage1 = cv::imread("res/trial/own4.png", 1);
+    // srcImage1 = cv::imread("res/owntrial/own4.png", 1);
 
     filter op = none;
 
@@ -209,7 +207,7 @@ void imageMode(char *csv_dir) {
                              ft, out_centroid_of_interest);
             classifying(interImage1, dstImage1, ft, csv_dir,
                         out_centroid_of_interest);
-        }else if (op == knn)  // task 7. knn
+        } else if (op == knn)  // task 7. knn
         {
             // get feature vector to compare fx
             vector<float> ft;
@@ -220,9 +218,9 @@ void imageMode(char *csv_dir) {
                              ft, out_centroid_of_interest);
 
             classify_knn(interImage1, dstImage1, ft, csv_dir,
-                        out_centroid_of_interest);
+                         out_centroid_of_interest);
 
-        }  else {  // op == none
+        } else {  // op == none
             srcImage1.copyTo(dstImage1);
         }
         cv::namedWindow("img1", cv::WINDOW_FREERATIO);
@@ -252,7 +250,7 @@ void imageMode(char *csv_dir) {
         {
             cout << "classsify.." << endl;
             op = classify;
-        }else if (k == 'k')  // task 7. knn
+        } else if (k == 'k')  // task 7. knn
         {
             cout << "classsify knn.." << endl;
             op = knn;
@@ -260,15 +258,14 @@ void imageMode(char *csv_dir) {
             cout << "save image" << endl;
             string imgName = getNewFileName();
             cv::imwrite(imgName, dstImage1);
-        } else if (k == 32)  
-        {
+        } else if (k == 32) {
             cout << "reset" << endl;
             k = -1;
             op = none;
         } else if (k == -1) {
-            continue;  
+            continue;
         } else {
-            cout << k << endl;  
+            cout << k << endl;
         }
     }
 }

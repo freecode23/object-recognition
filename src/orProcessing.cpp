@@ -344,7 +344,16 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
     out_features.push_back(perc_fill);
 
     // 5. feature 3: height width ratio
-    double height_width_rat = rot_rect.size.width / rot_rect.size.height;
+    // make sure width is bigger 
+    double w = rot_rect.size.width; 
+    double h = rot_rect.size.height;
+    double temp;
+    if(w < h){
+        temp = w;
+        w = h;
+        h = temp;
+    }
+    double height_width_rat = w / h;
     out_features.push_back(height_width_rat);
 
     // 6. display
