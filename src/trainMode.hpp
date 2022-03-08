@@ -84,57 +84,34 @@ int append_image_data_csv(char *csv_filepath, char *image_filename,
     return (0);
 }
 
-string getNewFileName() {
+string getNewFileName(string path_name) {
     // create img namek
     int fileIdx = 0;
     string img_name = "own";
     img_name.append(to_string(fileIdx)).append(".png");
 
     // create full path
-    string path_name = "res/owntrial/";
-    path_name.append(img_name);
+    // string path_name = "res/owntrial/";
+    string path_copy = path_name;
+    path_copy.append(img_name);
     struct stat buffer;
-    bool isFileExist = (stat(path_name.c_str(), &buffer) == 0);
+    bool isFileExist = (stat(path_copy.c_str(), &buffer) == 0);
 
     while (isFileExist) {
         fileIdx += 1;
         img_name = "own";
         img_name.append(to_string(fileIdx)).append(".png");
 
-        path_name = "res/owntrial/";
-        path_name.append(img_name);
-        isFileExist = (stat(path_name.c_str(), &buffer) == 0);
+        // path_name = "res/owntrial/";
+        string path_copy = path_name;
+        path_copy.append(img_name);
+        isFileExist = (stat(path_copy.c_str(), &buffer) == 0);
     }
     // file does not exists retunr this name
     return img_name;
 }
 
-// string getNewFileNameWithLabel(string labelName) {
-//     // create img name
-//     int fileIdx = 0;
-//     string img_name = labelName;
-//     img_name.append(to_string(fileIdx)).append(".png");
-
-//     // create full path
-//     string path_name = "res/train/";
-//     path_name.append(img_name);
-//     struct stat buffer;
-//     bool isFileExist = (stat(path_name.c_str(), &buffer) == 0);
-
-//     while (isFileExist) {
-//         fileIdx += 1;
-//         img_name = labelName;
-//         img_name.append(to_string(fileIdx)).append(".png");
-
-//         path_name = "res/train/";
-//         path_name.append(img_name);
-//         isFileExist = (stat(path_name.c_str(), &buffer) == 0);
-//     }
-//     // file does not exists retunr this name
-//     return img_name;
-// }
-
-int trainMode() {
+int trainMode(char *csv_dir) {
     // SET UP
     cv::VideoCapture *capdev;
     // 1. Open the video device
@@ -164,10 +141,16 @@ int trainMode() {
     cv::Mat dstFrame;
 
     string saved_img_name;
+    string path_name = csv_dir;
     filter op = none;  // operation
     stuff obj = null;  // object label
 
-    char csv_filepath[] = "res/validate/label_validate.csv";
+    // get csv filepath
+    string path_copy = path_name;  // res/validate/ or res/train
+    string fullpath_csv = path_copy.append("label_validate.csv");
+    char csv_filepath[fullpath_csv.length() + 1];
+    strcpy(csv_filepath, fullpath_csv.data());
+
     // reset file , uncomment if we want to reset
     // FILE *fp = fopen(csv_filepath, "w");
     // if (!fp) {
@@ -227,10 +210,13 @@ int trainMode() {
                 }
 
                 // create the full file path
-                saved_img_name = getNewFileName();
+                saved_img_name = getNewFileName(path_name);
                 char *image_filepath = (char *)saved_img_name.data();
-                string path_name = "res/validate/";
-                cv::imwrite(path_name.append(saved_img_name), dstFrame);
+
+                // copy original path name so we dont overwrite it when appending
+                string path_copy = path_name;
+                string full_name = path_copy.append(saved_img_name);
+                cv::imwrite(full_name, srcFrame);
 
                 // save the feature vector to csv
                 append_image_data_csv(csv_filepath, image_filepath, label_name,
@@ -251,7 +237,7 @@ int trainMode() {
         } else if (key == 'j')  // save single image to jpeg
         {
             cout << "saving file";
-            saved_img_name = getNewFileName();
+            saved_img_name = getNewFileName(path_name);
             cv::imwrite(saved_img_name, dstFrame);
         } else if (key == 'r')  // record video to avi
         {

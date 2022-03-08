@@ -119,7 +119,7 @@ int videoMode(char *csv_dir) {
         } else if (key == 'j') {
             cout << "saving file";
             string path_name = "res/owntrial/";
-            string img_name = getNewFileName();
+            string img_name = getNewFileName(path_name);
             path_name.append(img_name);
 
             cv::imwrite(path_name, dstFrame);
@@ -256,7 +256,8 @@ void imageMode(char *csv_dir) {
             op = knn;
         } else if (k == 'j') {
             cout << "save image" << endl;
-            string imgName = getNewFileName();
+            string path_name = "res/owntrial/";
+            string imgName = getNewFileName(path_name);
             cv::imwrite(imgName, dstImage1);
         } else if (k == 32) {
             cout << "reset" << endl;
@@ -286,6 +287,6 @@ int main(int argc, char *argv[]) {
     } else if (mode == 'i') {
         imageMode(argv[1]);
     } else {
-        trainMode();
+        trainMode(argv[1]); // save images and csv to this path
     }
 }
