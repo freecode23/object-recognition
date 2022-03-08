@@ -29,7 +29,7 @@ int videoMode(char *csv_dir) {
 
     printf("Expected size: %d %d\n", refS.width, refS.height);
     // 3. Create video writer object filename, format, size
-    cv::VideoWriter output("res/own/myout.avi",
+    cv::VideoWriter output("res/trial/myout.avi",
                            cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 5,
                            refS);
     bool record = false;
@@ -92,7 +92,17 @@ int videoMode(char *csv_dir) {
             classifying(interFrame, dstFrame, ft, csv_dir,
                         out_centroid_of_interest);
         }else if (op == knn)  // task 7. knn
-        {
+        {   // get feature vector to compare fx
+            vector<float> ft;
+            cv::Point out_centroid_of_interest;
+            cv::Mat interFrame;
+            // will draw bounding box and perc+fill, and width height ratio
+            compute_features(srcFrame, interFrame, randomColors, maxRegions,
+                             ft, out_centroid_of_interest);
+            // compute distances between our frame feature and the features
+            // in csv database provided as argument
+            classify_knn(interFrame, dstFrame, ft, csv_dir,
+                        out_centroid_of_interest);
 
         } else {  
             // op == none
@@ -109,7 +119,7 @@ int videoMode(char *csv_dir) {
         } else if (key == 'j') 
         {
             cout << "saving file";
-            string path_name = "res/own/";
+            string path_name = "res/trial/";
             string img_name = getNewFileName();
             path_name.append(img_name);
 
@@ -161,8 +171,8 @@ void imageMode(char *csv_dir) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
 
-    srcImage1 = cv::imread("res/sample/ownmix.png", 1);
-    // srcImage1 = cv::imread("res/own/own4.png", 1);
+    srcImage1 = cv::imread("res/sample/mas.png", 1);
+    // srcImage1 = cv::imread("res/trial/own4.png", 1);
 
     filter op = none;
 

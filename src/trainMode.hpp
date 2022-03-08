@@ -78,17 +78,17 @@ string getNewFileName() {
     img_name.append(to_string(fileIdx)).append(".png");
 
     // create full path
-    string path_name = "res/own/";
+    string path_name = "res/train/";
     path_name.append(img_name);
     struct stat buffer;
     bool isFileExist = (stat(path_name.c_str(), &buffer) == 0);
 
     while (isFileExist) {
         fileIdx += 1;
-        img_name = "ownClose1";
+        img_name = "ownClose1_";
         img_name.append(to_string(fileIdx)).append(".png");
 
-        path_name = "res/own/";
+        path_name = "res/train/";
         path_name.append(img_name);
         isFileExist = (stat(path_name.c_str(), &buffer) == 0);
     }
@@ -116,7 +116,7 @@ int trainMode() {
 
     printf("Expected size: %d %d\n", refS.width, refS.height);
     // 3. Create video writer object filename, format, size
-    cv::VideoWriter output("res/own/myout.avi",
+    cv::VideoWriter output("res/train/myout.avi",
                            cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 5,
                            refS);
     bool record = false;
@@ -130,7 +130,7 @@ int trainMode() {
     stuff obj = null;  // object label
 
     // reset file
-    char csv_filepath[] = "res/label.csv";
+    char csv_filepath[] = "res/train/label_train.csv";
     // FILE *fp = fopen(csv_filepath, "w");
     // if (!fp) {
     //     printf("Unable to open output file %s\n", csv_filepath);
@@ -160,12 +160,12 @@ int trainMode() {
 
             // enum stuff { null, glasses, wire, noodle, mascara, plier };
 
-            if (obj != null) {  // if we are labelling, save it as image
+            if (obj != null) {  // if we are labelling, save the source frame
 
                 saved_img_name = getNewFileName();
                 char *image_filepath = (char *)saved_img_name.data();
-                string path_name = "res/own/";
-                cv::imwrite(path_name.append(saved_img_name), dstFrame);
+                string path_name = "res/sample/";
+                cv::imwrite(path_name.append(saved_img_name), srcFrame);
 
                 const char *label_name;
                 if (obj == glasses) {

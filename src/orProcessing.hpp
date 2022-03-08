@@ -75,16 +75,18 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
 
 
 /*
- * Task 6: classify
- *
+ * Task 6: classify nearerst neighbor
+ * compute distances between our target image / frame feature and the features
+ * in csv database provided as argument
  */
 void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir, cv::Point &centroid_of_interest);
 
 
 
 /*
- * Task 7: classify_knn
- *
+ * Task 7: classify knn
+ * compute distances between our target image / frame feature and the features
+ * in csv database provided as argument. And get the best match from that training data
  */
 
 void classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,

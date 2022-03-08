@@ -399,7 +399,7 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
 
     read_features_from_csv(fis_csv_dir, names, labels, fis, 0);
     int i = 0;
-    // check reacding correct files
+    // check reading correct files
     // for(vector<float> fi : fis){
     //     cout << i <<" " << fi.at(8) << " ";
     //     cout << " imgName="  << names.at(i) << " ";
@@ -444,6 +444,7 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
 
 void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
                                  vector<float> &scaled_ssds,
+                                 vector<vector<float>> &ssds_by_label,
                                  vector<string> &unique_labels) {
     // label=glasses
     // label=lwrench
@@ -461,53 +462,35 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
     unique_labels.erase(unique(unique_labels.begin(), unique_labels.end()),
                         unique_labels.end());
 
-    
     // print all ssd in database
     int i = 0;
-    cout << "\nunique labels"<< endl;
+    cout << "\nunique labels" << endl;
     for (string label : unique_labels) {  // for each image data in database
-        cout<< i << " " << label << endl;
+        cout << i << " " << label << endl;
         i++;
     }
-    // cout << "label size="<< ssds_by_label.size() << endl;
 
-    // 2. group ssd by label
-    vector<vector<float>> ssds_by_label;
-
-    //insert empty vector so it doesnt give uncaught execption error
-    for(int i = 0; i < unique_labels.size(); i++){
+    // 2. insert empty vector so it doesn t give uncaught execption error
+    for (int i = 0; i < unique_labels.size(); i++) {
         vector<float> empty_vec;
         ssds_by_label.push_back(empty_vec);
     }
-    
-    // push ssd to vector by label
-    for (int i = 0; i < unique_labels.size(); i++) {   // for each label
+
+    // 3. push ssd to vector by label
+    for (int i = 0; i < unique_labels.size(); i++) {    // for each label
         for (int j = 0; j < scaled_ssds.size(); j++) {  // for each ssd
             // if unique label matches the ssds label
             if (unique_labels.at(i) == ssd_labels.at(j)) {
                 // push it to a vector at index i
-                // cout << unique_labels.at(i) << "=" << scaled_ssds.at(j);
                 ssds_by_label.at(i).push_back(scaled_ssds.at(j));
-                
             }
         }
     }
 
     // 4. sort all ssds by label
-    for(auto ssd_vec : ssds_by_label){
+    for (auto ssd_vec : ssds_by_label) {
         sort(ssd_vec.begin(), ssd_vec.end());
     }
-
-    i = 0;
-    cout << "\ncategorised:"<< endl;
-    for (int i = 0; i < ssds_by_label.size(); i++) {
-        cout <<"cat="<< i << " " << unique_labels.at(i) <<" ssd=";
-        for(auto val : ssds_by_label.at(i)){
-             cout << val << ", ";
-        }
-        cout << endl;
-    }
-   
 }
 /*
  * task 7 knn
@@ -525,18 +508,68 @@ void classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
     int i = 0;
     vector<float> standevs = compute_standevs(fis);
     vector<float> scaled_ssds;
-    cout << "\nall distances:"<< endl;
     for (vector<float> fi : fis) {  // for each image data in database
         // calculate its distance from ft
         float scaled_ssd = compute_scaled_ssd(ft, fi, standevs);
         i += 1;
         scaled_ssds.push_back(scaled_ssd);
-        cout << i << " ssd=" << scaled_ssd << endl;
     }
 
     // 3. group features by label
+    vector<vector<float>> ssds_by_label;
     vector<string> unique_labels;
-    get_vectors_of_ssd_by_label(labels, scaled_ssds, unique_labels);
-   
+    get_vectors_of_ssd_by_label(labels, scaled_ssds, ssds_by_label,
+                                unique_labels);
+    // i = 0;
+    // cout << "\nssd by label:" << endl;
+    // for (int i = 0; i < ssds_by_label.size(); i++) {
+    //     cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
+    //     for (auto val : ssds_by_label.at(i)) {
+    //         cout << val << ", ";
+    //     }
+    //     cout << endl;
+    // }
+
+    // 4. get sum of smallest n = 2
+    vector<float> sum_smallest_n;
+
+    int n = 2;
+    for (int idx = 0; idx < ssds_by_label.size(); ++idx) {  // for each label
+        int sum = 0;
+        for (int j = 0; j < n; j++) {            // get the smallest sum of n
+            sum += ssds_by_label.at(idx).at(j);  // sum of first
+        }
+        sum_smallest_n.push_back(sum);
+    }
+
+    cout << "label size " << ssds_by_label.size() << endl;
+    cout << "\nall sum: " << endl;
+    i = 0;
+    for(auto sum : sum_smallest_n){
+        cout << unique_labels.at(i) << "="<< sum << endl;
+        i+=1;
+    }
+
+    // 5. get final label
+    string final_label = unique_labels.at(
+        std::min_element(sum_smallest_n.begin(), sum_smallest_n.end()) -
+        sum_smallest_n.begin());
+
+    // 6. draw
+    src.copyTo(dst);
+    cv::putText(
+        dst, final_label,
+        cv::Point(centroid_of_interest.x + 80,
+                  centroid_of_interest.y +
+                      50),  // Coordinates (Bottom-left corner - give space of
+                            // 400 of the text string in the image)
+        cv::FONT_HERSHEY_DUPLEX,  // Font
+        1.2,                      // Scale. 2.0 = 2x bigger
+        cv::Scalar(255, 20, 20),  // BGR Color
+        1,                        // Line Thickness
+        cv::LINE_4);
+
+
+
 
 }
