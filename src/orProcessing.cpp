@@ -306,7 +306,8 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
  */
 void compute_features(cv::Mat &src, cv::Mat &dst,
                       vector<cv::Vec3b> random_colors, int max_regions,
-                      vector<float> &out_features) {
+                      vector<float> &out_features,
+                      cv::Point &out_centroid_of_interest) {
     // cout << "compute features" << endl;
     // 1. do segmentation to only get 1 region
     cv::Mat cleaned_img;
@@ -319,9 +320,9 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
 
     // get a binary image of single region most center and its area
     int pixel_area;
-    cv::Point centroid_of_interest;
+    // cv::Point centroid_of_interest;
     segment_and_color(cleaned_img, binary_one_region, random_colors,
-                      max_regions, false, pixel_area, centroid_of_interest);
+                      max_regions, false, pixel_area, out_centroid_of_interest);
 
     // 2. get contour of interest
     vector<cv::Point> contour_of_interest;
@@ -363,10 +364,9 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
     for (string info : infos) {
         // write features on the image
         cv::putText(dst, info,
-                    cv::Point(centroid_of_interest.x,
-                              centroid_of_interest.y + i +
-                                  100),  // Coordinates (Bottom-left corner
-                                         // of the text string in the image)
+                    cv::Point(out_centroid_of_interest.x,
+                    //Coordinates (Bottom-left corner  of the text string in the image)
+                              out_centroid_of_interest.y + i + 100),                            
                     cv::FONT_HERSHEY_DUPLEX,  // Font
                     0.8,                      // Scale. 2.0 = 2x bigger
                     cv::Scalar(0, 255, 0),    // BGR Color
@@ -387,7 +387,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
 }
 
 // float compute_ssd(vector<float> &ft, vector<float> &fi) {
-    
+
 //     float error = 0;
 //     for (int i = 0; i < ft.size(); i++) {
 //         error += (ft[i] - fi[i]) * (ft[i] - fi[i]);
@@ -419,7 +419,7 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
     vector<float> standevs = compute_standevs(fis);
     vector<float> scaled_ssds;
     cout << "ft=";
-    for(float fval : ft){
+    for (float fval : ft) {
         cout << fval << " ";
     }
     cout << endl;
@@ -430,8 +430,18 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
         i += 1;
         scaled_ssds.push_back(scaled_ssd);
     }
+    // get min of scaled ssd
     double min_ele_idx = min_element(scaled_ssds.begin(), scaled_ssds.end()) -
                          scaled_ssds.begin();
-    cout << "index: " << min_ele_idx << " "<< labels.at(min_ele_idx) << endl;
-    // get min of scaled ssd
-}
+    cout << "index: " << min_ele_idx << " " << labels.at(min_ele_idx) << endl;
+
+    src.copyTo(dst);
+    // cv::putText(dst, labels.at(min_ele_idx),
+    //             cv::Point(centroid_of_interest.x,
+    //                       centroid_of_interest.y + 400),       // Coordinates (Bottom-left corner - give space of 400
+    //                                       // of the text string in the image)
+    //             cv::FONT_HERSHEY_DUPLEX,  // Font
+    //             0.8,                      // Scale. 2.0 = 2x bigger
+    //             cv::Scalar(255, 0, 0),    // BGR Color
+    //             1,                        // Line Thickness
+    //             cv::LINE_4);

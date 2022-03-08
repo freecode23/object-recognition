@@ -70,7 +70,7 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
  */
 void compute_features(cv::Mat &src, cv::Mat &dst,
                       vector<cv::Vec3b> random_colors, int max_regions,
-                      vector<float> &out_features);
+                      vector<float> &out_features, cv::Point &out_centroid_of_interest);
 
 
 
@@ -78,7 +78,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
  * Task 6: classify
  *
  */
- void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir);
+void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir);
 
 
 #endif

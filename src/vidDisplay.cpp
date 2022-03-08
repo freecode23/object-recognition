@@ -73,7 +73,7 @@ int videoMode(char *csv_dir) {
             vector<float> feature_vec;
             cv::Point out_centroid_of_interest;
             compute_features(srcFrame, dstFrame, randomColors, maxRegions,
-                             feature_vec);
+                             feature_vec, out_centroid_of_interest);
 
             int id = 0;
             for (float feat : feature_vec) {
@@ -83,8 +83,9 @@ int videoMode(char *csv_dir) {
             cout << "\n" << endl;
         } else if (op == classify) {
             vector<float> feature_vec;
+             cv::Point out_centroid_of_interest;
             compute_features(srcFrame, dstFrame, randomColors, maxRegions,
-                             feature_vec);
+                             feature_vec, out_centroid_of_interest);
 
             // classify(srcFrame, dstFrame, csv_dir);
         } else {  // op == none
@@ -149,7 +150,7 @@ void imageMode(char* csv_dir) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
 
-    srcImage1 = cv::imread("res/sample/glasses.png", 1);
+    srcImage1 = cv::imread("res/sample/ownmix.png", 1);
     // srcImage1 = cv::imread("res/own/own4.png", 1);
 
     filter op = none;
@@ -174,16 +175,19 @@ void imageMode(char* csv_dir) {
                               out_centroid_of_interest);
         } else if (op == features) {
             vector<float> feature_vec;
+            cv::Point out_centroid_of_interest;
             compute_features(srcImage1, dstImage1, randomColors, maxRegions,
-                             feature_vec);
+                             feature_vec, out_centroid_of_interest);
         }else if (op == classify) {
 
             // get feature vector to compare fx
             vector<float> ft;
-            compute_features(srcImage1, dstImage1, randomColors, maxRegions,
-                             ft);
-
-            classifying(srcImage1, dstImage1, ft, csv_dir);
+            cv::Point out_centroid_of_interest; 
+            cv::Mat interImage1;
+            // will draw bounding box and perc+fill, and width height ratio
+            compute_features(srcImage1, interImage1, randomColors, maxRegions,
+                             ft,  out_centroid_of_interest); 
+            classifying(interImage1, dstImage1, ft, csv_dir);
         } else {  // op == none
             srcImage1.copyTo(dstImage1);
         }

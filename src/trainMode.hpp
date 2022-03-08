@@ -155,8 +155,9 @@ int trainMode() {
         // 2. If we are processing:
         if (op == getLabel) {
             vector<float> feature_vec;
+            cv::Point centr_of_interest;
             compute_features(srcFrame, dstFrame, randomColors, maxRegions,
-                             feature_vec);
+                             feature_vec, centr_of_interest);
 
             // enum stuff { null, glasses, wire, noodle, mascara, plier };
 
