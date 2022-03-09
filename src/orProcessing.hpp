@@ -11,6 +11,7 @@
 #define OR_H
 #include <opencv2/opencv.hpp>
 #include <dirent.h>
+#include <algorithm>
 using namespace std;
 
 /*
@@ -97,7 +98,7 @@ string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
 
 
 
-void evaluate(char const *images_validate_path, char const *csv_train_path,
-              char const *csv_validate_path, vector<cv::Vec3b> random_colors,
+void evaluate(char *images_validate_path, char *csv_train_path,
+              char *csv_validate_path, vector<cv::Vec3b> random_colors,
               int max_regions);
 #endif

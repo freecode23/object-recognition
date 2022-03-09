@@ -302,7 +302,7 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
         return (-1);
     }
 
-    printf("Reading %s\n", src_csv);
+    // printf("Reading %s\n", src_csv);
     for (;;) {
         std::vector<float> single_fi;  // feature vector of a single image
 
@@ -337,7 +337,7 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
         // printf("read %lu features\n", dvec.size() );
     }
     fclose(fp);
-    printf("Finished reading CSV file\n");
+    // printf("Finished reading CSV file\n");
     return (0);
 }
 

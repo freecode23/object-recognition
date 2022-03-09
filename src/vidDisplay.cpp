@@ -226,9 +226,16 @@ void imageMode(char *csv_train_path) {
 
         } else if (op == eval)  // task 7. knn
         {
-            char const* images_validate_path = "res/validate";
-            char const* csv_validate_path = "res/validate/label_validate.csv";
-            evaluate(images_validate_path, csv_train_path, csv_validate_path, randomColors,
+            // convert string path name to char*
+            string images_val_path = "res/validate";
+            char *images_validate_path= new char[images_val_path.length() + 1];
+            strcpy(images_validate_path, images_val_path.c_str());
+
+            string csv_val_path = "res/validate/label_validate_actual.csv";
+            char * csv_validate_actual_path = new char[csv_val_path.length() + 1];
+            strcpy(csv_validate_actual_path, csv_val_path.c_str());
+
+            evaluate(images_validate_path, csv_train_path, csv_validate_actual_path, randomColors,
               maxRegions);
 
         } else {  // op == none

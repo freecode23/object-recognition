@@ -476,9 +476,9 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
 
     // print all ssd in database
     int i = 0;
-    cout << "\nunique labels" << endl;
+    // cout << "\nunique labels" << endl;
     for (string label : unique_labels) {  // for each image data in database
-        cout << i << " " << label << endl;
+        // cout << i << " " << label << endl;
         i++;
     }
 
@@ -501,20 +501,20 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
     }
 
     // 4. sort all ssds by label
-
     for (auto ssd_vec : ssds_by_label) {
         sort(ssd_vec.begin(), ssd_vec.end());
         sorted_ssds_by_label.push_back(ssd_vec);
     }
 
-    cout << "\nssd by label result:" << endl;
-    for (int i = 0; i < sorted_ssds_by_label.size(); i++) {
-        cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
-        for (auto val : sorted_ssds_by_label.at(i)) {
-            cout << val << ", ";
-        }
-        cout << endl;
-    }
+    // check the sorted ssd
+    // cout << "\nssd by label result:" << endl;
+    // for (int i = 0; i < sorted_ssds_by_label.size(); i++) {
+    //     cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
+    //     for (auto val : sorted_ssds_by_label.at(i)) {
+    //         cout << val << ", ";
+    //     }
+    //     cout << endl;
+    // }
 }
 /*
  * task 7 knn
@@ -603,50 +603,150 @@ int append_confusion_vector_to_csv(char *csv_filepath, const char *label_name,
     return 0;
 }
 
+void print_conf_matrix(vector<vector<int>> &conf_matrix){
+     for (int i = 0; i < conf_matrix.size(); i++) {
+        for (int j = 0; j < conf_matrix.at(i).size(); j++) {
+            cout << conf_matrix.at(i).at(j) << ", ";
+        }
+        cout << endl;
+    }
+}
+
+
 /*
  * task 8 evaluate
  */
-
-void evaluate(char const *validate_images_path, char const *csv_train_path,
-              char const *csv_validate_path, vector<cv::Vec3b> random_colors,
+void evaluate(char *validate_imgs_path, char *csv_train_path,
+              char *csv_validate_actual_path, vector<cv::Vec3b> random_colors,
               int max_regions) {
-    // 1. loop through images
+    vector<vector<float>> actual_fis;
+    vector<char *> actual_img_names_char;
+    vector<char *> actual_labels_char;
+    // Pt 1. Get actual label
+    read_features_from_csv(csv_validate_actual_path, actual_img_names_char,
+                           actual_labels_char, actual_fis, 0);
 
-    printf("Processing directory %s\n", validate_images_path);
+    vector<string> actual_img_names;
+    for (char *name : actual_img_names_char) {
+        string someString(name);
+        actual_img_names.push_back(someString);
+    }
+
+    vector<string> actual_labels;
+    for (char *label : actual_labels_char) {
+        string someString(label);
+        actual_labels.push_back(someString);
+    }
+    cout << actual_labels.size() << " " << actual_img_names.size() << endl;
+
+    // create map
+    map<string, int> labels_indices;
+    labels_indices.insert(pair<string, int>("browncomb", 0));
+    labels_indices.insert(pair<string, int>("charger", 1));
+    labels_indices.insert(pair<string, int>("glasses", 2));
+    labels_indices.insert(pair<string, int>("hairgel", 3));
+    labels_indices.insert(pair<string, int>("keypad", 4));
+    labels_indices.insert(pair<string, int>("lwrench", 5));
+    labels_indices.insert(pair<string, int>("mascara", 6));
+    labels_indices.insert(pair<string, int>("nailclipper", 7));
+    labels_indices.insert(pair<string, int>("noodle", 8));
+    labels_indices.insert(pair<string, int>("plier", 9));
+    labels_indices.insert(pair<string, int>("spoon", 10));
+    labels_indices.insert(pair<string, int>("tape", 11));
+    labels_indices.insert(pair<string, int>("wire", 12));
+
+    // check if it reads correctly
+    // cout << "ACTUAL" <<endl;
+    // int i = 0;
+    // for(string img_name : actual_img_names){
+    //     cout << img_name << " " << actual_labels.at(i) << endl;
+    //     i+=1;
+    //  }
+
+    // Pt 2. Get predicted label
+    // 1. loop through imgs
+    printf("Processing directory %s\n", validate_imgs_path);
 
     DIR *dirp;
     struct dirent *dp;
-    dirp = opendir(validate_images_path);
+    dirp = opendir(validate_imgs_path);
     if (dirp == NULL) {
-        printf("Cannot open directory %s\n", validate_images_path);
+        printf("Cannot open directory %s\n", validate_imgs_path);
         exit(-1);
     }
 
     int idx = 0;
     char fullPath[256];
-    // 4. loop over all the files in the image file listing
+    vector<vector<int>> conf_matrix;
+    // insert vector of zero so it doesn t give uncaught execption error
+    for (int i = 0; i < labels_indices.size(); i++) {
+        vector<int> vec_zero;
+        for (int j = 0; j < labels_indices.size(); j++) {
+            vec_zero.push_back(0);
+        }
+        conf_matrix.push_back(vec_zero);
+    }
+
+    print_conf_matrix(conf_matrix);
+    // 2. loop over all the files in the img file listing
+    cout << "predicted" << endl;
     while ((dp = readdir(dirp)) != NULL) {
-        char *image_name = dp->d_name;
-        // 5. check if the file is an image
-        if (strstr(image_name, ".jpg") || strstr(image_name, ".png") ||
-            strstr(image_name, ".ppm") || strstr(image_name, ".tif")) {
-            // printf("processing image file: %s\n", image_name);
-            // printf("full path name: %s\n", fullPath);
-            // 6. build the overall filename
-            strcpy(fullPath, validate_images_path);
+        char *pred_img_name_char = dp->d_name;
+        // 3. check if the file is an img
+        if (strstr(pred_img_name_char, ".jpg") ||
+            strstr(pred_img_name_char, ".png") ||
+            strstr(pred_img_name_char, ".ppm") ||
+            strstr(pred_img_name_char, ".tif")) {
+            // 4. build the overall filename
+            strcpy(fullPath, validate_imgs_path);
             strcat(fullPath, "/");
-            strcat(fullPath, image_name);
+            strcat(fullPath, pred_img_name_char);
 
-            // 7. get image in the directory
-            cv::Mat i = cv::imread(fullPath, 1);
-            // 8. compute the feature 1 for this image
-            vector<float> fi;
-            cout << "fullPath: " << fullPath << endl;
+            // 5. get img in the directory
+            cv::Mat src = cv::imread(fullPath, 1);
+            // cout << "fullPath: " << fullPath << endl;
 
+            // 6. compute the feature for this img
+            vector<float> out_ft;
+            cv::Point out_centroid_of_interest;
+            cv::Mat inter_img;
+            cv::Mat dst_img;
+            compute_features(src, inter_img, random_colors, max_regions, out_ft,
+                             out_centroid_of_interest);
 
+            // get predicted label and image names
+            string pred_label =
+                classify_knn(inter_img, dst_img, out_ft, csv_train_path,
+                             out_centroid_of_interest);
+
+            string pred_img_name(pred_img_name_char);
+
+            // 7. get the actual label using the image names
+            auto it = std::find(actual_img_names.begin(),
+                                actual_img_names.end(), pred_img_name);
+            if (it == actual_img_names.end()) {
+                // name not in vector
+            } else {
+                auto act_img_index =
+                    std::distance(actual_img_names.begin(), it);
+                string actual_label = actual_labels.at(act_img_index);
+                // get index of actual and pred for conf matrix
+                int conf_mat_actual_idx =
+                    labels_indices.find(actual_label)->second;
+                int conf_mat_pred_idx = labels_indices.find(pred_label)->second;
+                cout << " pred=" << conf_mat_pred_idx << " " << pred_label
+                     << ", act=" << conf_mat_actual_idx << " " << actual_label
+                     << endl;
+
+                // increment at conf. matrix index
+                conf_matrix.at(conf_mat_pred_idx).at(conf_mat_pred_idx) += 1;
+            }
+
+            print_conf_matrix(conf_matrix);
             // 9. save the feature to a new csv path
             char const *csv_save_to_filepath = "res/eval/eval.csv";
-            // append_image_data_csv(csv_save_to_filepath, image_name, label_name, fi, 1);
+            // append_img_data_csv(csv_save_to_filepath, pred_img_name,
+            // label_name, fi, 1);
         }
     }
     cout << "finish compute fis" << endl;
