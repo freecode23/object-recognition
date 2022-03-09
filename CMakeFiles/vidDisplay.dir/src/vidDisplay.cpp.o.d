@@ -359,5 +359,7 @@ CMakeFiles/vidDisplay.dir/src/vidDisplay.cpp.o: \
   /opt/homebrew/Cellar/opencv/4.5.4_3/include/opencv4/opencv2/video/tracking.hpp \
   /opt/homebrew/Cellar/opencv/4.5.4_3/include/opencv4/opencv2/video/background_segm.hpp \
   /Users/freebox/Desktop/code2/NEU/5330/project3/src/orProcessing.hpp \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/dirent.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/sys/dirent.h \
   /Users/freebox/Desktop/code2/NEU/5330/project3/src/orUtil.hpp \
   /Users/freebox/Desktop/code2/NEU/5330/project3/src/trainMode.hpp

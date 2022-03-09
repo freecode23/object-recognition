@@ -344,11 +344,11 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
     out_features.push_back(perc_fill);
 
     // 5. feature 3: height width ratio
-    // make sure width is bigger 
-    double w = rot_rect.size.width; 
+    // make sure width is bigger
+    double w = rot_rect.size.width;
     double h = rot_rect.size.height;
     double temp;
-    if(w < h){
+    if (w < h) {
         temp = w;
         w = h;
         h = temp;
@@ -401,7 +401,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
  */
 
 string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
-                 char *fis_csv_dir, cv::Point &centroid_of_interest) {
+                   char *fis_csv_dir, cv::Point &centroid_of_interest) {
     vector<char *> names;
     vector<char *> labels;
     vector<vector<float>> fis;
@@ -451,10 +451,8 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
         1,                        // Line Thickness
         cv::LINE_4);
 
-    return labels.at(min_ele_idx); // predicted label
+    return labels.at(min_ele_idx);  // predicted label
 }
-
-
 
 void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
                                  vector<float> &scaled_ssds,
@@ -502,9 +500,8 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
         }
     }
 
-
     // 4. sort all ssds by label
-    
+
     for (auto ssd_vec : ssds_by_label) {
         sort(ssd_vec.begin(), ssd_vec.end());
         sorted_ssds_by_label.push_back(ssd_vec);
@@ -522,9 +519,8 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
 /*
  * task 7 knn
  */
-string classify_knn(cv::Mat &src, cv::Mat &dst,
-                  vector<float> &ft, char *fis_csv_dir,
-                  cv::Point &centroid_of_interest) {
+string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
+                    char *fis_csv_dir, cv::Point &centroid_of_interest) {
     vector<char *> names;
     vector<char *> labels;
     vector<vector<float>> fis;
@@ -598,7 +594,60 @@ string classify_knn(cv::Mat &src, cv::Mat &dst,
         1,                        // Line Thickness
         cv::LINE_4);
 
-
     return final_label;
+}
 
+int append_confusion_vector_to_csv(char *csv_filepath, const char *label_name,
+                                   std::vector<int> &confusion_vector,
+                                   int reset_file) {
+    return 0;
+}
+
+/*
+ * task 8 evaluate
+ */
+
+void evaluate(char const *validate_images_path, char const *csv_train_path,
+              char const *csv_validate_path, vector<cv::Vec3b> random_colors,
+              int max_regions) {
+    // 1. loop through images
+
+    printf("Processing directory %s\n", validate_images_path);
+
+    DIR *dirp;
+    struct dirent *dp;
+    dirp = opendir(validate_images_path);
+    if (dirp == NULL) {
+        printf("Cannot open directory %s\n", validate_images_path);
+        exit(-1);
+    }
+
+    int idx = 0;
+    char fullPath[256];
+    // 4. loop over all the files in the image file listing
+    while ((dp = readdir(dirp)) != NULL) {
+        char *image_name = dp->d_name;
+        // 5. check if the file is an image
+        if (strstr(image_name, ".jpg") || strstr(image_name, ".png") ||
+            strstr(image_name, ".ppm") || strstr(image_name, ".tif")) {
+            // printf("processing image file: %s\n", image_name);
+            // printf("full path name: %s\n", fullPath);
+            // 6. build the overall filename
+            strcpy(fullPath, validate_images_path);
+            strcat(fullPath, "/");
+            strcat(fullPath, image_name);
+
+            // 7. get image in the directory
+            cv::Mat i = cv::imread(fullPath, 1);
+            // 8. compute the feature 1 for this image
+            vector<float> fi;
+            cout << "fullPath: " << fullPath << endl;
+
+
+            // 9. save the feature to a new csv path
+            char const *csv_save_to_filepath = "res/eval/eval.csv";
+            // append_image_data_csv(csv_save_to_filepath, image_name, label_name, fi, 1);
+        }
+    }
+    cout << "finish compute fis" << endl;
 }

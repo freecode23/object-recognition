@@ -13,7 +13,7 @@ using namespace std;
 // ./src/vidDisplay res/train/label_train.csv
 // to train or collect validation data do path to put the images and csv file
 // ./src/vidDisplay res/train/ or ./src/vidDisplay res/validate/
-int videoMode(char *csv_dir) {
+int videoMode(char *csv_train_path) {
     cv::VideoCapture *capdev;
     // 1. Open the video device
     capdev = new cv::VideoCapture(0);
@@ -71,7 +71,7 @@ int videoMode(char *csv_dir) {
             int area;
             cv::Point out_centroid_of_interest;
             segment_and_color(cleanedFrame, dstFrame, randomColors, maxRegions,
-                              false, area, out_centroid_of_interest);
+                              true, area, out_centroid_of_interest);
         } else if (op == features) {
             vector<float> feature_vec;
             cv::Point out_centroid_of_interest;
@@ -92,7 +92,7 @@ int videoMode(char *csv_dir) {
             // will draw bounding box and perc+fill, and width height ratio
             compute_features(srcFrame, interFrame, randomColors, maxRegions, ft,
                              out_centroid_of_interest);
-            classifying(interFrame, dstFrame, ft, csv_dir,
+            classifying(interFrame, dstFrame, ft, csv_train_path,
                         out_centroid_of_interest);
         } else if (op == knn)  // task 7. knn
         {                      // get feature vector to compare fx
@@ -104,9 +104,8 @@ int videoMode(char *csv_dir) {
                              out_centroid_of_interest);
             // compute distances between our frame feature and the features
             // in csv database provided as argument
-            classify_knn(interFrame, dstFrame, ft, csv_dir,
+            classify_knn(interFrame, dstFrame, ft, csv_train_path,
                          out_centroid_of_interest);
-
         } else {
             // op == none
             srcFrame.copyTo(dstFrame);
@@ -168,7 +167,10 @@ int videoMode(char *csv_dir) {
     return (0);
 }
 
-void imageMode(char *csv_dir) {
+
+
+
+void imageMode(char *csv_train_path) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
 
@@ -207,7 +209,7 @@ void imageMode(char *csv_dir) {
             // will draw bounding box and perc+fill, and width height ratio
             compute_features(srcImage1, interImage1, randomColors, maxRegions,
                              ft, out_centroid_of_interest);
-            classifying(interImage1, dstImage1, ft, csv_dir,
+            classifying(interImage1, dstImage1, ft, csv_train_path,
                         out_centroid_of_interest);
         } else if (op == knn)  // task 7. knn
         {
@@ -219,8 +221,15 @@ void imageMode(char *csv_dir) {
             compute_features(srcImage1, interImage1, randomColors, maxRegions,
                              ft, out_centroid_of_interest);
 
-            classify_knn(interImage1, dstImage1, ft, csv_dir,
+            classify_knn(interImage1, dstImage1, ft, csv_train_path,
                          out_centroid_of_interest);
+
+        } else if (op == eval)  // task 7. knn
+        {
+            char const* images_validate_path = "res/validate";
+            char const* csv_validate_path = "res/validate/label_validate.csv";
+            evaluate(images_validate_path, csv_train_path, csv_validate_path, randomColors,
+              maxRegions);
 
         } else {  // op == none
             srcImage1.copyTo(dstImage1);
@@ -256,6 +265,10 @@ void imageMode(char *csv_dir) {
         {
             cout << "classsify knn.." << endl;
             op = knn;
+        }else if (k == 'e')  // task 7. knn
+        {
+            cout << "evaluate.." << endl;
+            op = eval;
         } else if (k == 'j') {
             cout << "save image" << endl;
             string path_name = "res/owntrial/";

@@ -10,6 +10,7 @@
 #ifndef OR_H
 #define OR_H
 #include <opencv2/opencv.hpp>
+#include <dirent.h>
 using namespace std;
 
 /*
@@ -93,4 +94,10 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_d
 
 string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
                   char *fis_csv_dir, cv::Point &centroid_of_interest);
+
+
+
+void evaluate(char const *images_validate_path, char const *csv_train_path,
+              char const *csv_validate_path, vector<cv::Vec3b> random_colors,
+              int max_regions);
 #endif
