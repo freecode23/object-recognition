@@ -173,7 +173,7 @@ void imageMode(char *csv_dir) {
     cv::Mat dstImage1;
 
     // srcImage1 = cv::imread("res/sample/mas.png", 1);
-    srcImage1 = cv::imread("res/owntrial/own26.png", 1);
+    srcImage1 = cv::imread("res/owntrial/own28.png", 1);
     filter op = none;
 
     while (1) {
