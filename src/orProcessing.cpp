@@ -454,68 +454,6 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
     return labels.at(min_ele_idx);  // predicted label
 }
 
-void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
-                                 vector<float> &scaled_ssds,
-                                 vector<vector<float>> &sorted_ssds_by_label,
-                                 vector<string> &unique_labels) {
-    // label=glasses
-    // label=lwrench
-    // label=mascara
-    // label=noodle
-    // label=plier
-    // label=wire
-
-    // 1. get unique labels  and size
-    for (char *label : ssd_labels) {
-        string s = label;
-        unique_labels.push_back(label);
-    }
-    sort(unique_labels.begin(), unique_labels.end());
-    unique_labels.erase(unique(unique_labels.begin(), unique_labels.end()),
-                        unique_labels.end());
-
-    // print all ssd in database
-    int i = 0;
-    // cout << "\nunique labels" << endl;
-    for (string label : unique_labels) {  // for each image data in database
-        // cout << i << " " << label << endl;
-        i++;
-    }
-
-    // 2. insert empty vector so it doesn t give uncaught execption error
-    vector<vector<float>> ssds_by_label;
-    for (int i = 0; i < unique_labels.size(); i++) {
-        vector<float> empty_vec;
-        ssds_by_label.push_back(empty_vec);
-    }
-
-    // 3. push ssd to vector by label
-    for (int i = 0; i < unique_labels.size(); i++) {    // for each label
-        for (int j = 0; j < scaled_ssds.size(); j++) {  // for each ssd
-            // if unique label matches the ssds label
-            if (unique_labels.at(i) == ssd_labels.at(j)) {
-                // push it to a vector at index i
-                ssds_by_label.at(i).push_back(scaled_ssds.at(j));
-            }
-        }
-    }
-
-    // 4. sort all ssds by label
-    for (auto ssd_vec : ssds_by_label) {
-        sort(ssd_vec.begin(), ssd_vec.end());
-        sorted_ssds_by_label.push_back(ssd_vec);
-    }
-
-    // check the sorted ssd
-    // cout << "\nssd by label result:" << endl;
-    // for (int i = 0; i < sorted_ssds_by_label.size(); i++) {
-    //     cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
-    //     for (auto val : sorted_ssds_by_label.at(i)) {
-    //         cout << val << ", ";
-    //     }
-    //     cout << endl;
-    // }
-}
 /*
  * task 7 knn
  */
@@ -545,15 +483,6 @@ string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
     vector<string> unique_labels;
     get_vectors_of_ssd_by_label(labels, scaled_ssds, ssds_by_label,
                                 unique_labels);
-    i = 0;
-    // cout << "\nssd by label:" << endl;
-    // for (int i = 0; i < ssds_by_label.size(); i++) {
-    //     cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
-    //     for (auto val : ssds_by_label.at(i)) {
-    //         cout << val << ", ";
-    //     }
-    //     cout << endl;
-    // }
 
     // 4. get sum of smallest n = 2
     vector<float> sum_smallest_n;
@@ -597,111 +526,12 @@ string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
     return final_label;
 }
 
-int append_label_vector_to_csv(const char *csv_filepath, vector<char *>object_names, int reset_file){
-    char buffer[256];
-    char mode[8];
-    FILE *fp;
-
-    strcpy(mode, "a");
-
-    if (reset_file) {
-        strcpy(mode, "w");
-    }
-
-    fp = fopen(csv_filepath, mode);
-    if (!fp) {
-        printf("Unable to open output file %s\n", csv_filepath);
-        exit(-1);
-    }
-
-    // write the filename and the feature vector to the CSV file
-    // 1. first name
-    strcpy(buffer, object_names.at(0));
-    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
-
-    // 2. confusion vector
-    // loop through confusion vector
-    for (int i = 1; i < object_names.size(); i++) {
-        char tmp[256];
-        // store confusion vector in string 'temp' with 4 decimal point
-        sprintf(tmp, ",%s", object_names[i]);
-        // write to tmp to our file (file path)
-        std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
-    }
-
-    std::fwrite("\n", sizeof(char), 1, fp);  // EOL
-
-    fclose(fp);
-
-    return (0);
-}
-
-int append_confusion_vector_to_csv(const char *csv_filepath, char *object_name,
-                                   vector<int> &confusion_vector,
-                                   int reset_file) {
-    char buffer[256];
-    char mode[8];
-    FILE *fp;
-
-    strcpy(mode, "a");
-
-    if (reset_file) {
-        strcpy(mode, "w");
-    }
-
-    fp = fopen(csv_filepath, mode);
-    if (!fp) {
-        printf("Unable to open output file %s\n", csv_filepath);
-        exit(-1);
-    }
-
-    // write the filename and the feature vector to the CSV file
-    // 1. labelname
-    strcpy(buffer, object_name);
-    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
-
-    // 2. confusion vector
-    // loop through confusion vector
-    for (int i = 0; i < confusion_vector.size(); i++) {
-        char tmp[256];
-        // store confusion vector in string 'temp' with 4 decimal point
-        sprintf(tmp, ",%d", confusion_vector[i]);
-        // write to tmp to our file (file path)
-        std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
-    }
-
-    std::fwrite("\n", sizeof(char), 1, fp);  // EOL
-
-    fclose(fp);
-
-    return (0);
-}
-
-void print_conf_matrix(vector<vector<int>> &conf_matrix) {
-    for (int i = 0; i < conf_matrix.size(); i++) {
-        for (int j = 0; j < conf_matrix.at(i).size(); j++) {
-            cout << conf_matrix.at(i).at(j) << ", ";
-        }
-        cout << endl;
-    }
-}
-
-void create_conf_matrix_zero(vector<vector<int>> &conf_matrix, int size) {
-    for (int i = 0; i < size; i++) {
-        vector<int> vec_zero;
-        for (int j = 0; j < size; j++) {
-            vec_zero.push_back(0);
-        }
-        conf_matrix.push_back(vec_zero);
-    }
-}
-
 /*
  * task 8 evaluate
  */
 void evaluate(char *validate_imgs_path, char *csv_train_path,
               char *csv_validate_actual_path, vector<cv::Vec3b> random_colors,
-              int max_regions) {
+              int max_regions, char classifier) {
     vector<vector<float>> actual_fis;
     vector<char *> actual_img_names_char;
     vector<char *> actual_labels_char;
@@ -763,7 +593,6 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
     // 3. create confusion matrix of zero value
     vector<vector<int>> conf_matrix;
     create_conf_matrix_zero(conf_matrix, objects_indices.size());
-    print_conf_matrix(conf_matrix);
 
     // Pt 3. Get predicted labels
     // 1. get directory of images
@@ -791,7 +620,7 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
             strcpy(fullPath, validate_imgs_path);
             strcat(fullPath, "/");
             strcat(fullPath, pred_img_name_char);
-
+            string pred_img_name(pred_img_name_char);  // convert to string
             // 5. get img in the directory
             cv::Mat src = cv::imread(fullPath, 1);
             // cout << "fullPath: " << fullPath << endl;
@@ -805,15 +634,21 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
                              out_centroid_of_interest);
 
             // 7. get predicted label and image names
-            string pred_label =
-                classify_knn(inter_img, dst_img, out_ft, csv_train_path,
-                             out_centroid_of_interest);
-
-            string pred_img_name(pred_img_name_char);
+            string pred_label;
+            if (classifier == 'k') {
+                pred_label =
+                    classify_knn(inter_img, dst_img, out_ft, csv_train_path,
+                                 out_centroid_of_interest);
+            } else {
+                pred_label =
+                    classifying(inter_img, dst_img, out_ft, csv_train_path,
+                                out_centroid_of_interest);
+            }
 
             // 8. get the actual label using the image names
             auto it = std::find(actual_img_names.begin(),
                                 actual_img_names.end(), pred_img_name);
+
             if (it == actual_img_names.end()) {
                 // name not in vector
             } else {
@@ -825,19 +660,19 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
                     objects_indices.find(actual_label)->second;
                 int conf_mat_pred_idx =
                     objects_indices.find(pred_label)->second;
-                cout << " pred=" << conf_mat_pred_idx << " " << pred_label
+                cout << pred_img_name << " pred=" << conf_mat_pred_idx << " " << pred_label
                      << ", act=" << conf_mat_actual_idx << " " << actual_label
                      << endl;
 
                 // increment at conf. matrix index
                 conf_matrix.at(conf_mat_pred_idx).at(conf_mat_actual_idx) += 1;
             }
-
-            print_conf_matrix(conf_matrix);
         }
     }  // finish loop through image
 
-    // 9. save the feature to a new csv path
+    cout << classifier << " result: " << endl;
+    print_conf_matrix(conf_matrix);
+    // 9. save the feature to a new csv path,lae
     const char *csv_save_to_filepath = "res/eval/eval.csv";
     int i = 0;
     append_label_vector_to_csv(csv_save_to_filepath, objects, 1);
@@ -849,7 +684,5 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
         i += 1;
     }
 
-    // append_img_data_csv(csv_save_to_filepath, pred_img_name, label_name, fi,
-    // 1);
     cout << "finish compute fis" << endl;
 }

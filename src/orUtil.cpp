@@ -188,14 +188,8 @@ void get_contour_of_interest(cv::Mat binary_img,
     out_contour = contours[cont_id_of_interest];
 }
 
-/*
-  reads a string from a CSV file. the 0-terminated string is returned in the
-  char array os.
 
-  The function returns false if it is successfully read. It returns true if it
-  reaches the end of the line or the file.
- */
-
+// 6.0
 int getstring(FILE *fp, char os[]) {
     int p = 0;
     int eol = 0;
@@ -218,6 +212,7 @@ int getstring(FILE *fp, char os[]) {
     return (eol);  // return true if eol
 }
 
+// 6.1
 int getint(FILE *fp, int *v) {
     char s[256];
     int p = 0;
@@ -241,13 +236,7 @@ int getint(FILE *fp, int *v) {
     return (eol);  // return true if eol
 }
 
-/*
-  Utility function for reading one float value from a CSV file
-
-  The value is stored in the v parameter
-
-  The function returns true if it reaches the end of a line or the file
- */
+// 6.2
 int getfloat(FILE *fp, float *v) {
     char s[256];
     int p = 0;
@@ -271,22 +260,7 @@ int getfloat(FILE *fp, float *v) {
     return (eol);  // return true if eol
 }
 
-/*
-  Given a file with the format of a string as the first column and
-  floating point numbers as the remaining columns, this function
-  returns the filenames as a std::vector of character arrays, and the
-  remaining data as a 2D std::vector<float>.
-
-  src_csv the file to read from
-  this will be the result:
-  - result_name will contain all of the image file names.
-  - resFbList will contain the features calculated from each image.
-
-  If echo_file is true, it prints out the contents of the file as read
-  into memory.
-
-  The function returns a non-zero value if something goes wrong.
- */
+// 6.3
 int read_features_from_csv(char *src_csv, vector<char *> &result_names,
                            vector<char *> &result_labels,
                            vector<vector<float>> &result_fis, int echo_file) {
@@ -340,6 +314,66 @@ int read_features_from_csv(char *src_csv, vector<char *> &result_names,
     return (0);
 }
 
+
+// 6.4
+void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
+                                 vector<float> &scaled_ssds,
+                                 vector<vector<float>> &sorted_ssds_by_label,
+                                 vector<string> &unique_labels) {
+
+    // 1. get unique labels  and size
+    for (char *label : ssd_labels) {
+        string s = label;
+        unique_labels.push_back(label);
+    }
+    sort(unique_labels.begin(), unique_labels.end());
+    unique_labels.erase(unique(unique_labels.begin(), unique_labels.end()),
+                        unique_labels.end());
+
+    // print all ssd in database
+    int i = 0;
+    // cout << "\nunique labels" << endl;
+    for (string label : unique_labels) {  // for each image data in database
+        // cout << i << " " << label << endl;
+        i++;
+    }
+
+    // 2. insert empty vector so it doesn t give uncaught execption error
+    vector<vector<float>> ssds_by_label;
+    for (int i = 0; i < unique_labels.size(); i++) {
+        vector<float> empty_vec;
+        ssds_by_label.push_back(empty_vec);
+    }
+
+    // 3. push ssd to vector by label
+    for (int i = 0; i < unique_labels.size(); i++) {    // for each label
+        for (int j = 0; j < scaled_ssds.size(); j++) {  // for each ssd
+            // if unique label matches the ssds label
+            if (unique_labels.at(i) == ssd_labels.at(j)) {
+                // push it to a vector at index i
+                ssds_by_label.at(i).push_back(scaled_ssds.at(j));
+            }
+        }
+    }
+
+    // 4. sort all ssds by label
+    for (auto ssd_vec : ssds_by_label) {
+        sort(ssd_vec.begin(), ssd_vec.end());
+        sorted_ssds_by_label.push_back(ssd_vec);
+    }
+
+    // check the sorted ssd
+    cout << "\nssd by label result:" << endl;
+    for (int i = 0; i < sorted_ssds_by_label.size(); i++) {
+        cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
+        for (auto val : sorted_ssds_by_label.at(i)) {
+            cout << val << ", ";
+        }
+        cout << endl;
+    }
+}
+
+// 7.
 vector<float> compute_standevs(vector<vector<float>> fis) {
     int n = fis.size();
     // cout << "total images " << n << endl;
@@ -393,4 +427,109 @@ float compute_scaled_ssd(vector<float> &ft, vector<float> &fi,
         scaled_ssd /= ft.size(); // divide by number of features
     }
     return scaled_ssd;
+}
+
+
+// 8.0
+void create_conf_matrix_zero(vector<vector<int>> &conf_matrix, int size) {
+    for (int i = 0; i < size; i++) {
+        vector<int> vec_zero;
+        for (int j = 0; j < size; j++) {
+            vec_zero.push_back(0);
+        }
+        conf_matrix.push_back(vec_zero);
+    }
+}
+
+// 8.1
+void print_conf_matrix(vector<vector<int>> &conf_matrix) {
+    for (int i = 0; i < conf_matrix.size(); i++) {
+        for (int j = 0; j < conf_matrix.at(i).size(); j++) {
+            cout << conf_matrix.at(i).at(j) << ", ";
+        }
+        cout << endl;
+    }
+}
+
+// 8.2
+int append_confusion_vector_to_csv(const char *csv_filepath, char *object_name,
+                                   vector<int> &confusion_vector,
+                                   int reset_file) {
+    char buffer[256];
+    char mode[8];
+    FILE *fp;
+
+    strcpy(mode, "a");
+
+    if (reset_file) {
+        strcpy(mode, "w");
+    }
+
+    fp = fopen(csv_filepath, mode);
+    if (!fp) {
+        printf("Unable to open output file %s\n", csv_filepath);
+        exit(-1);
+    }
+
+    // write the filename and the feature vector to the CSV file
+    // 1. labelname
+    strcpy(buffer, object_name);
+    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
+
+    // 2. confusion vector
+    // loop through confusion vector
+    for (int i = 0; i < confusion_vector.size(); i++) {
+        char tmp[256];
+        // store confusion vector in string 'temp' with 4 decimal point
+        sprintf(tmp, ",%d", confusion_vector[i]);
+        // write to tmp to our file (file path)
+        std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
+    }
+
+    std::fwrite("\n", sizeof(char), 1, fp);  // EOL
+
+    fclose(fp);
+
+    return (0);
+}
+
+// 8.3
+int append_label_vector_to_csv(const char *csv_filepath,
+                               vector<char *> object_names, int reset_file) {
+    char buffer[256];
+    char mode[8];
+    FILE *fp;
+
+    strcpy(mode, "a");
+
+    if (reset_file) {
+        strcpy(mode, "w");
+    }
+
+    fp = fopen(csv_filepath, mode);
+    if (!fp) {
+        printf("Unable to open output file %s\n", csv_filepath);
+        exit(-1);
+    }
+
+    // write the filename and the feature vector to the CSV file
+    // 1. first name
+    strcpy(buffer, object_names.at(0));
+    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
+
+    // 2. confusion vector
+    // loop through confusion vector
+    for (int i = 1; i < object_names.size(); i++) {
+        char tmp[256];
+        // store confusion vector in string 'temp' with 4 decimal point
+        sprintf(tmp, ",%s", object_names[i]);
+        // write to tmp to our file (file path)
+        std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
+    }
+
+    std::fwrite("\n", sizeof(char), 1, fp);  // EOL
+
+    fclose(fp);
+
+    return (0);
 }

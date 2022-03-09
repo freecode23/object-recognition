@@ -12,7 +12,7 @@ using namespace std;
 
 vector<cv::Vec3b> randomColors;
 const int maxRegions = 6;
-enum filter { none, thresh, clean, segment, features, getLabel, classify, knn, eval };
+enum filter { none, thresh, clean, segment, features, getLabel, classify, knn};
 enum stuff {
     null,
     browncomb,

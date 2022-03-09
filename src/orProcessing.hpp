@@ -9,9 +9,10 @@
 //**********************************************************************************************************************
 #ifndef OR_H
 #define OR_H
-#include <opencv2/opencv.hpp>
 #include <dirent.h>
+
 #include <algorithm>
+#include <opencv2/opencv.hpp>
 using namespace std;
 
 /*
@@ -49,7 +50,8 @@ void clean_up(cv::Mat &src, cv::Mat &dst);
  */
 void segment_and_color(cv::Mat &src, cv::Mat &dst,
                        std::vector<cv::Vec3b> random_colors, int max_regions,
-                       bool isColorful, int &out_area, cv::Point &out_centroid_of_interest);
+                       bool isColorful, int &out_area,
+                       cv::Point &out_centroid_of_interest);
 
 /*
  * Helper function for segment and color. It will do the segmentation using
@@ -72,33 +74,42 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
  */
 void compute_features(cv::Mat &src, cv::Mat &dst,
                       vector<cv::Vec3b> random_colors, int max_regions,
-                      vector<float> &out_features, cv::Point &out_centroid_of_interest);
-
-
+                      vector<float> &out_features,
+                      cv::Point &out_centroid_of_interest);
 
 /*
  * Task 6: classify nearerst neighbor
- * compute distances between our target image / frame feature and the features
- * in csv database provided as argument
- * will return a string of the predicted label
+ * compute distances between our target image feature(ft) and the features using
+ * nearest neighrbor in csv database provided as argument(fis_csv_dir) and get
+ * the best match from that training data
+ * @param src an image with bounding box drawn
+ * @param dst the image with label written
+ * @param ft our target feature vector
+ * @param fis_csv_dir the csv path for feature vectors of our training data
+ * @param centroid of interest to draw the label in the correct position
+ * @return string of the predicted label
  */
-string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft, char* fis_csv_dir, cv::Point &centroid_of_interest);
-
-
+string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
+                   char *fis_csv_dir, cv::Point &centroid_of_interest);
 
 /*
  * Task 7: classify knn
- * compute distances between our target image / frame feature and the features
- * in csv database provided as argument. And get the best match from that training data
- * will return a string of the predicted label
+ * compute distances between our target image feature(ft) and the features
+ * in csv database provided as argument(fis_csv_dir) and get the best match from
+ * that training data
+ * @param src an image with bounding box drawn
+ * @param dst the image with label written
+ * @param ft our target feature vector
+ * @param fis_csv_dir the csv path for feature vectors of our training data
+ * @param centroid of interest to draw the label in the correct position
+ * @return string of the predicted label
+ *
  */
 
 string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
-                  char *fis_csv_dir, cv::Point &centroid_of_interest);
-
-
+                    char *fis_csv_dir, cv::Point &centroid_of_interest);
 
 void evaluate(char *images_validate_path, char *csv_train_path,
               char *csv_validate_path, vector<cv::Vec3b> random_colors,
-              int max_regions);
+              int max_regionsm, char classifier);
 #endif

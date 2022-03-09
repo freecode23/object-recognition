@@ -1,8 +1,6 @@
 #include <sys/stat.h>
-
 #include <iostream>
 #include <string>
-
 #include "filter.hpp"
 #include "orProcessing.hpp"
 #include "orUtil.hpp"
@@ -180,8 +178,12 @@ void evalMode(char *csv_train_path) {
     char *csv_validate_actual_path = new char[csv_val_path.length() + 1];
     strcpy(csv_validate_actual_path, csv_val_path.c_str());
 
+    // 2. evaluate
+    cout << "press k for knn, or n for nearest neighbor" << endl;
+    char classifier;
+    cin >> classifier;
     evaluate(images_validate_path, csv_train_path, csv_validate_actual_path,
-             randomColors, maxRegions);
+             randomColors, maxRegions, classifier);
 }
 
 void imageMode(char *csv_train_path) {
@@ -235,6 +237,7 @@ void imageMode(char *csv_train_path) {
             compute_features(srcImage1, interImage1, randomColors, maxRegions,
                              ft, out_centroid_of_interest);
 
+            // will use the image to draw label on top after classifying using features
             classify_knn(interImage1, dstImage1, ft, csv_train_path,
                          out_centroid_of_interest);
 
@@ -246,21 +249,21 @@ void imageMode(char *csv_train_path) {
         int k = cv::waitKey(0);
 
         // 8. check keys
-        if (k == 'q')  // 1. quit
+        if (k == 'q')
         {
             break;
-        } else if (k == 't')  // 2. threshold
+        } else if (k == 't')  // 1. threshold
         {
             op = thresh;
-        } else if (k == 'c')  // 3. clean
+        } else if (k == 'c')  // 2. clean
         {
             cout << "clean" << endl;
             op = clean;
-        } else if (k == 's')  // 4. segment
+        } else if (k == 's')  // 3. segment
         {
             cout << "segmenting" << endl;
             op = segment;
-        } else if (k == 'f')  // 5. compute all image features
+        } else if (k == 'f')  // 4. compute all image features
         {
             cout << "compute features" << endl;
             op = features;
@@ -272,10 +275,6 @@ void imageMode(char *csv_train_path) {
         {
             cout << "classsify knn.." << endl;
             op = knn;
-        } else if (k == 'e')  // task 8. evaluate
-        {
-            cout << "evaluate.." << endl;
-            op = eval;
         } else if (k == 'j') {
             cout << "save image" << endl;
             string path_name = "res/owntrial/";
@@ -301,7 +300,7 @@ int main(int argc, char *argv[]) {
             cv::Vec3b((rand() & 255), (rand() & 255), (rand() & 255)));
     }
     char mode;
-    cout << "enter mode: v video, i image, t trainm, e evaluate" << endl;
+    cout << "enter mode: v video, i image, t train, e evaluate" << endl;
 
     cin >> mode;
     if (mode == 'v') {
