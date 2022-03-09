@@ -167,9 +167,6 @@ int videoMode(char *csv_train_path) {
     return (0);
 }
 
-
-
-
 void imageMode(char *csv_train_path) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
@@ -272,7 +269,7 @@ void imageMode(char *csv_train_path) {
         {
             cout << "classsify knn.." << endl;
             op = knn;
-        }else if (k == 'e')  // task 7. knn
+        }else if (k == 'e')  // task 8. evaluate
         {
             cout << "evaluate.." << endl;
             op = eval;

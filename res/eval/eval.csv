@@ -1,0 +1,14 @@
+browncomb,charger,glasses,hairgel,keypad,lwrench,mascara,nailclipper,noodle,plier,spoon,tape,wire
+browncomb,4,0,0,0,0,0,0,0,0,0,0,0,0
+charger,0,4,0,0,0,0,0,0,0,0,0,0,0
+glasses,0,0,4,0,0,0,0,0,0,0,0,0,0
+hairgel,0,0,0,3,0,0,0,0,0,0,0,0,0
+keypad,0,0,0,0,4,0,0,0,0,0,0,0,0
+lwrench,0,0,0,0,0,4,0,0,0,0,0,0,0
+mascara,0,0,0,0,0,0,4,0,0,0,0,0,0
+nailclipper,0,0,0,0,0,0,0,4,0,0,0,0,0
+noodle,0,0,0,1,0,0,0,0,4,0,0,0,0
+plier,0,0,0,0,0,0,0,0,0,4,0,0,0
+spoon,0,0,0,0,0,0,0,0,0,0,4,0,0
+tape,0,0,0,0,0,0,0,0,0,0,0,4,0
+wire,0,0,0,0,0,0,0,0,0,0,0,0,4

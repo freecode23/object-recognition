@@ -80,7 +80,6 @@ vector<int> get_center_coordinates(cv::Mat src) {
     return center;
 }
 
-// https://answers.opencv.org/question/201898/find-centroid-coordinate-of-whole-frame-in-opencv/
 
 // 3.5 (print coords of all regions)
 int get_id_with_most_center_centroids(vector<int> &img_center,
