@@ -400,7 +400,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
  * task 6
  */
 
-void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
+string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
                  char *fis_csv_dir, cv::Point &centroid_of_interest) {
     vector<char *> names;
     vector<char *> labels;
@@ -450,7 +450,11 @@ void classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
         cv::Scalar(255, 20, 20),  // BGR Color
         1,                        // Line Thickness
         cv::LINE_4);
+
+    return labels.at(min_ele_idx); // predicted label
 }
+
+
 
 void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
                                  vector<float> &scaled_ssds,
@@ -518,8 +522,9 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
 /*
  * task 7 knn
  */
-void classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
-                  char *fis_csv_dir, cv::Point &centroid_of_interest) {
+string classify_knn(cv::Mat &src, cv::Mat &dst,
+                  vector<float> &ft, char *fis_csv_dir,
+                  cv::Point &centroid_of_interest) {
     vector<char *> names;
     vector<char *> labels;
     vector<vector<float>> fis;
@@ -594,6 +599,6 @@ void classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
         cv::LINE_4);
 
 
-
+    return final_label;
 
 }
