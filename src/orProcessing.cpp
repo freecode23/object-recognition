@@ -597,8 +597,8 @@ string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
     return final_label;
 }
 
-int append_confusion_vector_to_csv(char *csv_filepath, const char *label_name,
-                                   std::vector<int> &confusion_vector,
+int append_confusion_vector_to_csv(char *csv_filepath, char* object,
+                                   vector<<int> &confusion_vector,
                                    int reset_file) {
     return 0;
 }
@@ -640,28 +640,31 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
     cout << actual_labels.size() << " " << actual_img_names.size() << endl;
 
     // create map
-    map<string, int> labels_indices;
-    labels_indices.insert(pair<string, int>("browncomb", 0));
-    labels_indices.insert(pair<string, int>("charger", 1));
-    labels_indices.insert(pair<string, int>("glasses", 2));
-    labels_indices.insert(pair<string, int>("hairgel", 3));
-    labels_indices.insert(pair<string, int>("keypad", 4));
-    labels_indices.insert(pair<string, int>("lwrench", 5));
-    labels_indices.insert(pair<string, int>("mascara", 6));
-    labels_indices.insert(pair<string, int>("nailclipper", 7));
-    labels_indices.insert(pair<string, int>("noodle", 8));
-    labels_indices.insert(pair<string, int>("plier", 9));
-    labels_indices.insert(pair<string, int>("spoon", 10));
-    labels_indices.insert(pair<string, int>("tape", 11));
-    labels_indices.insert(pair<string, int>("wire", 12));
+    map<string, int> objects_indices;
+    objects_indices.insert(pair<string, int>("browncomb", 0));
+    objects_indices.insert(pair<string, int>("charger", 1));
+    objects_indices.insert(pair<string, int>("glasses", 2));
+    objects_indices.insert(pair<string, int>("hairgel", 3));
+    objects_indices.insert(pair<string, int>("keypad", 4));
+    objects_indices.insert(pair<string, int>("lwrench", 5));
+    objects_indices.insert(pair<string, int>("mascara", 6));
+    objects_indices.insert(pair<string, int>("nailclipper", 7));
+    objects_indices.insert(pair<string, int>("noodle", 8));
+    objects_indices.insert(pair<string, int>("plier", 9));
+    objects_indices.insert(pair<string, int>("spoon", 10));
+    objects_indices.insert(pair<string, int>("tape", 11));
+    objects_indices.insert(pair<string, int>("wire", 12));
 
-    // check if it reads correctly
-    // cout << "ACTUAL" <<endl;
-    // int i = 0;
-    // for(string img_name : actual_img_names){
-    //     cout << img_name << " " << actual_labels.at(i) << endl;
-    //     i+=1;
-    //  }
+
+    // create vector of object
+    vector<string> objects;
+    int i = 0;
+    for(string img_name : actual_img_names){
+        // check if it reads correctly
+        cout << img_name << " " << actual_labels.at(i) << endl;
+        objects
+        i+=1;
+     }
 
     // Pt 2. Get predicted label
     // 1. loop through imgs
@@ -679,9 +682,9 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
     char fullPath[256];
     vector<vector<int>> conf_matrix;
     // insert vector of zero so it doesn t give uncaught execption error
-    for (int i = 0; i < labels_indices.size(); i++) {
+    for (int i = 0; i < objects_indices.size(); i++) {
         vector<int> vec_zero;
-        for (int j = 0; j < labels_indices.size(); j++) {
+        for (int j = 0; j < objects_indices.size(); j++) {
             vec_zero.push_back(0);
         }
         conf_matrix.push_back(vec_zero);
@@ -732,14 +735,14 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
                 string actual_label = actual_labels.at(act_img_index);
                 // get index of actual and pred for conf matrix
                 int conf_mat_actual_idx =
-                    labels_indices.find(actual_label)->second;
-                int conf_mat_pred_idx = labels_indices.find(pred_label)->second;
+                    objects_indices.find(actual_label)->second;
+                int conf_mat_pred_idx = objects_indices.find(pred_label)->second;
                 cout << " pred=" << conf_mat_pred_idx << " " << pred_label
                      << ", act=" << conf_mat_actual_idx << " " << actual_label
                      << endl;
 
                 // increment at conf. matrix index
-                conf_matrix.at(conf_mat_pred_idx).at(conf_mat_pred_idx) += 1;
+                conf_matrix.at(conf_mat_pred_idx).at(conf_mat_actual_idx) += 1;
             }
 
             print_conf_matrix(conf_matrix);
