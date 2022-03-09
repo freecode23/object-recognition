@@ -9,7 +9,8 @@
 #include "trainMode.hpp"
 #define PI 3.14159265;
 using namespace std;
-// to classify, argument should be a full path including the training data to use
+// to classify, argument should be a full path including the training data to
+// use
 // ./src/vidDisplay res/train/label_train.csv
 // to train or collect validation data do path to put the images and csv file
 // ./src/vidDisplay res/train/ or ./src/vidDisplay res/validate/
@@ -167,6 +168,22 @@ int videoMode(char *csv_train_path) {
     return (0);
 }
 
+void evalMode(char *csv_train_path) {
+    // 1. convert string path name to char*
+    // path for images to predict
+    string images_val_path = "res/validate";
+    char *images_validate_path = new char[images_val_path.length() + 1];
+    strcpy(images_validate_path, images_val_path.c_str());
+
+    // path for the labels and features data for the images
+    string csv_val_path = "res/validate/label_validate_actual.csv";
+    char *csv_validate_actual_path = new char[csv_val_path.length() + 1];
+    strcpy(csv_validate_actual_path, csv_val_path.c_str());
+
+    evaluate(images_validate_path, csv_train_path, csv_validate_actual_path,
+             randomColors, maxRegions);
+}
+
 void imageMode(char *csv_train_path) {
     cv::Mat srcImage1;
     cv::Mat dstImage1;
@@ -221,20 +238,6 @@ void imageMode(char *csv_train_path) {
             classify_knn(interImage1, dstImage1, ft, csv_train_path,
                          out_centroid_of_interest);
 
-        } else if (op == eval)  // task 7. knn
-        {
-            // convert string path name to char*
-            string images_val_path = "res/validate";
-            char *images_validate_path= new char[images_val_path.length() + 1];
-            strcpy(images_validate_path, images_val_path.c_str());
-
-            string csv_val_path = "res/validate/label_validate_actual.csv";
-            char * csv_validate_actual_path = new char[csv_val_path.length() + 1];
-            strcpy(csv_validate_actual_path, csv_val_path.c_str());
-
-            evaluate(images_validate_path, csv_train_path, csv_validate_actual_path, randomColors,
-              maxRegions);
-
         } else {  // op == none
             srcImage1.copyTo(dstImage1);
         }
@@ -269,7 +272,7 @@ void imageMode(char *csv_train_path) {
         {
             cout << "classsify knn.." << endl;
             op = knn;
-        }else if (k == 'e')  // task 8. evaluate
+        } else if (k == 'e')  // task 8. evaluate
         {
             cout << "evaluate.." << endl;
             op = eval;
@@ -298,14 +301,18 @@ int main(int argc, char *argv[]) {
             cv::Vec3b((rand() & 255), (rand() & 255), (rand() & 255)));
     }
     char mode;
-    cout << "enter mode: v video, i image, t train" << endl;
+    cout << "enter mode: v video, i image, t trainm, e evaluate" << endl;
 
     cin >> mode;
     if (mode == 'v') {
-        videoMode(argv[1]);
+        videoMode(argv[1]); // train data using this path
     } else if (mode == 'i') {
-        imageMode(argv[1]);
-    } else {
-        trainMode(argv[1]); // save images and csv to this path
+        imageMode(argv[1]); // train data using this path
+    } else if (mode == 't') {
+        trainMode(argv[1]);  // save images and csv to this path
+    } else if(mode == 'e') {
+        evalMode(argv[1]); // train data using this path
+    } else if(mode == 'q') {
+        return (0);
     }
 }
