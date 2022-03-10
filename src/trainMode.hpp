@@ -160,10 +160,9 @@ int trainMode(char *csv_fullpath_char) {
         } else {  // display frame as is
             srcFrame.copyTo(dstFrame);
         }
+        cv::imshow("img1", dstFrame);
         // if final label is unknown ask for user input
         if (final_label_str == "unknown") {
-
-            cv::imshow("Video", dstFrame);
 
             // 1. get new label name
             cout << "Unknown object. Please enter the new label name:" << endl;
@@ -207,6 +206,18 @@ int trainMode(char *csv_fullpath_char) {
             record = true;
         } else if (key == 'a') {
             cout << "get label by entering key..." << endl;
+            cout <<"b for brown comb" << endl;
+            cout <<"c for charger" << endl;
+            cout <<"g for glasses" << endl;
+            cout <<"k for keypad" << endl;
+            cout <<"l for lwrench" << endl;
+            cout <<"m for mascara" << endl;
+            cout <<"i for nailclipper" << endl;
+            cout <<"n for noodle" << endl;
+            cout <<"p for plier" << endl;
+            cout <<"s for spoon" << endl;
+            cout <<"t for tape" << endl;
+            cout <<"w for wire" << endl;
             op = getLabel;
         } else if (key == 'y') {
             cout << "classify first before labelling..." << endl;

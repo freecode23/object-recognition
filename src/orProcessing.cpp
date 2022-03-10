@@ -394,6 +394,9 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
         cv::line(dst, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 0),
                  2);
     }
+
+        // (x,y),(MA,ma),angle = cv.fitEllipse(contour_of_interest);
+
 }
 
 /*
@@ -530,6 +533,8 @@ string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
         cv::Scalar(255, 20, 20),  // BGR Color
         1,                        // Line Thickness
         cv::LINE_4);
+
+
 
     return final_label;
 }
