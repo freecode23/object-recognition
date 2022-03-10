@@ -241,8 +241,6 @@ vector<int> get_top_N_largest_areas_not_corner(
         region_num = areas_indices.size();
     }
     for (int i = 0; i < region_num; i++) {
-        // cout << "index: " << areas_indices.top().second
-        //      << ", area: " << areas_indices.top().first << endl;
         top_N_largest_areas_indices.push_back(areas_indices.top().second);
         areas_indices.pop();  // remove max
     }
@@ -282,6 +280,8 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
 
         // if rectangle does not touch corners keep this area and id
         if (x != 0 && y != 0 && x + w != src.cols && y + h != src.rows) {
+            // cout << "index: " << i
+            //      << ", area: " << a << endl;
             areas_indices_not_corner.push(std::pair<int, int>(a, i));
         }
     }
@@ -289,13 +289,13 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
     // 4. filter corner
     out_ids_to_keep = get_top_N_largest_areas_not_corner(
         areas_indices_not_corner, max_regions);
-    out_ids_to_keep = get_top_N_largest_areas_index(areas, max_regions);
 
     // 6. filter by centroid
     vector<int> img_center = get_center_coordinates(src);  // image center
     // get single id of interest
     out_id_of_interest = get_id_with_most_center_centroids(
         img_center, centroids, out_ids_to_keep);
+    
     out_centroid_of_interest =
         cv::Point(centroids.at<double>(out_id_of_interest, 0),
                   centroids.at<double>(out_id_of_interest, 1));
@@ -395,8 +395,7 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
                  2);
     }
 
-        // (x,y),(MA,ma),angle = cv.fitEllipse(contour_of_interest);
-
+    // (x,y),(MA,ma),angle = cv.fitEllipse(contour_of_interest);
 }
 
 /*
@@ -445,7 +444,7 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
     if (min_dist > 0.0045) {
         final_label = "unknown";
     }
-    // cout << "final label: " << final_label; 
+    // cout << "final label: " << final_label;
     src.copyTo(dst);
     cv::putText(
         dst, final_label,
@@ -534,8 +533,6 @@ string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
         1,                        // Line Thickness
         cv::LINE_4);
 
-
-
     return final_label;
 }
 
@@ -598,7 +595,7 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
         string obj_str = object_index.first;
         char *object_char;
         // allocate new mem
-        object_char = (char *)alloca(obj_str.size() + 1);  
+        object_char = (char *)alloca(obj_str.size() + 1);
         // copy str to char
         memcpy(object_char, obj_str.c_str(), obj_str.size() + 1);
         objects.push_back(object_char);

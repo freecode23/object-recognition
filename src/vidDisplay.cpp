@@ -68,7 +68,7 @@ int videoMode(char *csv_train_path) {
             int area;
             cv::Point out_centroid_of_interest;
             segment_and_color(cleanedFrame, dstFrame, randomColors, maxRegions,
-                              true, area, out_centroid_of_interest);
+                              false, area, out_centroid_of_interest);
         } else if (op == features) {
             vector<float> feature_vec;
             cv::Point out_centroid_of_interest;
@@ -208,7 +208,7 @@ void imageMode(char *csv_train_path) {
             int area;
             cv::Point out_centroid_of_interest;
             segment_and_color(cleanedImage1, dstImage1, randomColors,
-                              maxRegions, false, area,
+                              maxRegions, true, area,
                               out_centroid_of_interest);
         } else if (op == features) {
             vector<float> feature_vec;

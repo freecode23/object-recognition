@@ -87,12 +87,10 @@ int get_id_with_most_center_centroids(vector<int> &img_center,
                                       vector<int> ids_big_area) {
     // cout << "\ncoordinates: " << endl;
     map<int, double> indices_distances;
-
-    for (int i = 1; i < ids_big_area.size(); i++) {
+    for (int i = 0; i < ids_big_area.size(); i++) {
         // calc. eucl distance at each centroids of top big n areas
         double x = centroids.at<double>(ids_big_area[i], 0);
         double y = centroids.at<double>(ids_big_area[i], 1);
-        // cout << ids_big_area[i] << ", x: " << x << ", y: "<< y<< endl;
         double x_dist = x - img_center.at(0);
         double y_dist = y - img_center.at(1);
 
@@ -147,7 +145,6 @@ int get_id_with_largest_contour_area(std::vector<vector<cv::Point>> contours) {
     // 3. filter countours by area
     vector<int> areas;
     cv::Rect rect;
-    // cout << "\ncontours size: " << contours.size();
     int cont_id = 0;
     // if there are more than 1 contour, get all of their areas
     if (contours.size() > 1) {
@@ -181,8 +178,8 @@ void get_contour_of_interest(cv::Mat binary_img,
     // there maybe more if there are holes within our region of interest
     std::vector<vector<cv::Point>> contours;
     cv::findContours(binary_img, contours, hierarchy, cv::RETR_TREE,
-                     cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-
+                     cv::CHAIN_APPROX_NONE, cv::Point(0, 0));
+    cout << "cont size before get id:" << contours.size() << endl;
     // 2. get the largest contour
     int cont_id_of_interest = get_id_with_largest_contour_area(contours);
     out_contour = contours[cont_id_of_interest];
