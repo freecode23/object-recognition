@@ -179,7 +179,6 @@ void get_contour_of_interest(cv::Mat binary_img,
     std::vector<vector<cv::Point>> contours;
     cv::findContours(binary_img, contours, hierarchy, cv::RETR_TREE,
                      cv::CHAIN_APPROX_NONE, cv::Point(0, 0));
-    cout << "cont size before get id:" << contours.size() << endl;
     // 2. get the largest contour
     int cont_id_of_interest = get_id_with_largest_contour_area(contours);
     out_contour = contours[cont_id_of_interest];
