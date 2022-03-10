@@ -358,13 +358,13 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
 
     // 6. display
     // print features
-    int id = 0;
-    for (float feat : out_features) {
-        // cout << id << ": " << feat << ", ";
-        id += 1;
-    }
+    // int id = 0;
+    // for (float feat : out_features) {
+    //     // cout << id << ": " << feat << ", ";
+    //     id += 1;
+    // }
 
-    // write text
+    // 6.1 write text
     src.copyTo(dst);
     vector<string> infos;
     infos.push_back("perc_fill: " + to_string(perc_fill) + " %");
@@ -385,17 +385,89 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
         i += 30;
     }
 
-    // draw rotated box
+    // 6.2
+    // Using cv::fitEllipse
+    cv::RotatedRect rot_rect_ell = cv::fitEllipse(contour_of_interest);
+    // cv::Point2f vertices2[4];
+    // rot_rect2.points(vertices2);  // get the points from rectangle and output
+    //                               // as vertices points
+
+    // -- axis using ellipse
+    // major
+    float alpha = rot_rect_ell.angle;
+    double pi = 3.14159265359;
+    alpha = alpha * (pi / 180);
+
+    float X2 = out_centroid_of_interest.x + (100 * cos(alpha));
+    float Y2 = out_centroid_of_interest.y + (100 * sin(alpha));
+    cv::arrowedLine(dst, out_centroid_of_interest, cv::Point(X2, Y2),
+                    cv::Scalar(0, 0, 255), 1);
+
+    // minor
+    float x2 = out_centroid_of_interest.x + (100 * sin(alpha) * -1);
+    float y2 = out_centroid_of_interest.y + (100 * cos(alpha));
+    cv::arrowedLine(dst, out_centroid_of_interest, cv::Point(x2, y2),
+                    cv::Scalar(0, 0, 255), 1);
+
+    // -- box using min max
+    // cv::Point left = *min_element(
+    //     contour_of_interest.begin(), contour_of_interest.end(),
+    //     [](const cv::Point &lhs, const cv::Point &rhs) { return lhs.x < rhs.x; });
+
+    // cv::Point right = *max_element(
+    //     contour_of_interest.begin(), contour_of_interest.end(),
+    //     [](const cv::Point &lhs, const cv::Point &rhs) { return lhs.x < rhs.x; });
+
+    // cv::Point top = *min_element(
+    //     contour_of_interest.begin(), contour_of_interest.end(),
+    //     [](const cv::Point &lhs, const cv::Point &rhs) { return lhs.y < rhs.y; });
+
+    // cv::Point bot = *max_element(
+    //    contour_of_interest.begin(), contour_of_interest.end(),
+    //     [](const cv::Point &lhs, const cv::Point &rhs) { return lhs.y < rhs.y; });
+
+    // cout <<"left: " << left.x << " " << left.y << endl;
+    // cout <<"right: " << right.x << " " << right.y << endl;
+    // cout <<"top: " << top.x << " " << top.y << endl;
+    // cout <<"bot: " << bot.x << " " << bot.y << endl;
+
+    // cv::Point vert1 = cv::Point(left.x, top.y);
+    // cv::Point vert2 = cv::Point(right.x, top.y);
+    // cv::Point vert3 = cv::Point(right.x, bot.y);
+    // cv::Point vert4 = cv::Point(left.x, bot.y);
+
+
+    // cv::line(dst, vert1, vert2, cv::Scalar(0, 255,0), 2);
+    // cv::line(dst, vert2, vert3, cv::Scalar(0, 255,0), 2);
+    // cv::line(dst, vert3, vert4, cv::Scalar(0, 255,0), 2);
+    // cv::line(dst, vert4, vert1, cv::Scalar(0, 255,0), 2);
+    // 7  draw box and axes of least central moments
+    // - axis using moments
+    // cv::Moments moments = cv::moments(contour_of_interest, true);
+    // double m_11 = moments.m11;
+    // double m_20 = moments.m20;
+    // double m_02 = moments.m02;
+    // double alpha = atan2(2 * m_11, m_20 - m_02) / 2;
+    // cout << "alpha moments: " << alpha << endl;
+    //  double pi = 3.14159265359;
+    // alpha = alpha * (pi /180);
+    // double x2 = out_centroid_of_interest.x + (200 * cos(alpha));
+    // double y2 = out_centroid_of_interest.y + (200 * sin(alpha));
+    // cv::arrowedLine(dst, out_centroid_of_interest, cv::Point(x2, y2),
+    // cv::Scalar(0, 0, 255), 1);
+
+    // -box using rotated rect
     cv::Point2f vertices[4];
-    rot_rect.points(vertices);  // get the points from rectangle and output
-                                // as vertices points
+    rot_rect_ell.points(vertices);
     for (int i = 0; i < 4; i++) {
         // draw line based on vertices
-        cv::line(dst, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 0),
-                 2);
+        cv::line(dst, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255,0), 2);
     }
+<<<<<<< HEAD
 
     // (x,y),(MA,ma),angle = cv.fitEllipse(contour_of_interest);
+=======
+>>>>>>> a302f56edb4674e345989a4b20dc0a5f2a3987bf
 }
 
 /*
