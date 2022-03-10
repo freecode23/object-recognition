@@ -75,7 +75,7 @@ int trainMode(char *csv_fullpath_char) {
 
     size_t pos = path_name.find("/");
     pos = path_name.find("/", pos + 1);
-    path_name = path_name.substr(0, pos+1);
+    path_name = path_name.substr(0, pos + 1);
 
     // STARTS
     for (;;) {
@@ -160,38 +160,37 @@ int trainMode(char *csv_fullpath_char) {
         } else {  // display frame as is
             srcFrame.copyTo(dstFrame);
         }
-
         // if final label is unknown ask for user input
         if (final_label_str == "unknown") {
+
+            cv::imshow("Video", dstFrame);
+
             // 1. get new label name
-            cout << "label the unkown object, or press q to skip labelling:";
+            cout << "Unknown object. Please enter the new label name:" << endl;
             cin >> final_label_str;
-            if (final_label_str == "q") {
-                cout << endl;
-                break;
+
+            if (final_label_str != "n") {
+                // 2. create the full file path
+                saved_img_name = getNewFileName(path_name);
+                char *image_filepath = (char *)saved_img_name.data();
+
+                // 3. copy original path name so we dont overwrite it when
+                // appending
+                string path_copy = path_name;
+                string full_name = path_copy.append(saved_img_name);
+                cv::imwrite(full_name, srcFrame);
+
+                // 4. save the feature vector to csv
+                char *final_label_char;
+                // allocate new mem
+                final_label_char = (char *)alloca(final_label_str.size() + 1);
+                // copy str to char
+                memcpy(final_label_char, final_label_str.c_str(),
+                       final_label_str.size() + 1);
+                append_image_data_csv(csv_fullpath_char, image_filepath,
+                                      final_label_char, ft, 0);
             }
-            // 2. create the full file path
-            saved_img_name = getNewFileName(path_name);
-            char *image_filepath = (char *)saved_img_name.data();
-
-            // 3. copy original path name so we dont overwrite it when
-            // appending
-            string path_copy = path_name;
-            string full_name = path_copy.append(saved_img_name);
-            cv::imwrite(full_name, srcFrame);
-
-            // 4. save the feature vector to csv
-            char *final_label_char;
-            // allocate new mem
-            final_label_char = (char *)alloca(final_label_str.size() + 1);
-            // copy str to char
-            memcpy(final_label_char, final_label_str.c_str(),
-                   final_label_str.size() + 1);
-            append_image_data_csv(csv_fullpath_char, image_filepath,
-                                  final_label_char, ft, 0);
         }
-
-        cv::imshow("Video", dstFrame);
         // 4. get key strokes
         char key = cv::waitKey(5);
         if (key == 'q') {
