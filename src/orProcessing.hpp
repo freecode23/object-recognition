@@ -77,6 +77,9 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
                       vector<float> &out_features,
                       cv::Point &out_centroid_of_interest);
 
+
+
+
 /*
  * Task 6: classify nearerst neighbor
  * compute distances between our target image feature(ft) and the features using

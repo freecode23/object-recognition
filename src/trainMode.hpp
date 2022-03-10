@@ -1,7 +1,3 @@
-#include <sys/stat.h>
-
-#include <iostream>
-
 #include "filter.hpp"
 #include "orProcessing.hpp"
 #include "orUtil.hpp"
@@ -12,7 +8,7 @@ using namespace std;
 
 vector<cv::Vec3b> randomColors;
 const int maxRegions = 6;
-enum filter { none, thresh, clean, segment, features, getLabel, classify, knn};
+enum filter { none, thresh, clean, segment, features, getLabel, classify, knn };
 enum stuff {
     null,
     browncomb,
@@ -29,89 +25,8 @@ enum stuff {
     tape,
     wire
 };
-/*
-  Given a filename, and image filename, and the image features, by
-  default the function will append a line of data to the CSV format
-  file.  If reset_file is true, then it will open the file in 'write'
-  mode and clear the existing contents.
-  The image filename is written to the first position in the row of
-  data. The values in image_data are all written to the file as
-  floats.
-  The function returns a non-zero value in case of an error.
- */
-int append_image_data_csv(char *csv_filepath, char *image_filename,
-                          const char *label_name,
-                          std::vector<float> &feature_vector, int reset_file) {
-    char buffer[256];
-    char mode[8];
-    FILE *fp;
 
-    strcpy(mode, "a");
-
-    if (reset_file) {
-        strcpy(mode, "w");
-    }
-
-    fp = fopen(csv_filepath, mode);
-    if (!fp) {
-        printf("Unable to open output file %s\n", csv_filepath);
-        exit(-1);
-    }
-
-    // write the filename and the feature vector to the CSV file
-    // 1. filename
-    strcpy(buffer, image_filename);
-    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
-
-    // 2. label name
-    sprintf(buffer, ",%s", label_name);
-    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
-
-    // 3. feature vector
-    // loop through feature vector
-    for (int i = 0; i < feature_vector.size(); i++) {
-        char tmp[256];
-        // store feature vector in string 'temp' with 4 decimal point
-        sprintf(tmp, ",%.4f", feature_vector[i]);
-        // write to tmp to our file (file path)
-        std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
-    }
-
-    std::fwrite("\n", sizeof(char), 1, fp);  // EOL
-
-    fclose(fp);
-
-    return (0);
-}
-
-string getNewFileName(string path_name) {
-    // create img namek
-    int fileIdx = 0;
-    string img_name = "own";
-    img_name.append(to_string(fileIdx)).append(".png");
-
-    // create full path
-    // string path_name = "res/owntrial/";
-    string path_copy = path_name;
-    path_copy.append(img_name);
-    struct stat buffer;
-    bool isFileExist = (stat(path_copy.c_str(), &buffer) == 0);
-
-    while (isFileExist) {
-        fileIdx += 1;
-        img_name = "own";
-        img_name.append(to_string(fileIdx)).append(".png");
-
-        // path_name = "res/owntrial/";
-        string path_copy = path_name;
-        path_copy.append(img_name);
-        isFileExist = (stat(path_copy.c_str(), &buffer) == 0);
-    }
-    // file does not exists retunr this name
-    return img_name;
-}
-
-int trainMode(char *csv_dir) {
+int trainMode(char *csv_fullpath_char) {
     // SET UP
     cv::VideoCapture *capdev;
     // 1. Open the video device
@@ -141,22 +56,26 @@ int trainMode(char *csv_dir) {
     cv::Mat dstFrame;
 
     string saved_img_name;
-    string path_name = csv_dir;
     filter op = none;  // operation
     stuff obj = null;  // object label
 
-    // get csv filepath
-    string path_copy = path_name;  // res/validate/ or res/train
-    string fullpath_csv = path_copy.append("label_validate.csv");
-    char csv_filepath[fullpath_csv.length() + 1];
-    strcpy(csv_filepath, fullpath_csv.data());
+    // get csv filepath in char
+    string path_name = csv_fullpath_char;
+    // string path_copy = path_name;  // res/validate/ or res/train
+    // string csv_fullpath_str = path_copy.append("label_train.csv");
+    // char csv_fullpath_char[csv_fullpath_str.length() + 1];
+    // strcpy(csv_fullpath_char, csv_fullpath_str.data());
 
     // reset file , uncomment if we want to reset
-    // FILE *fp = fopen(csv_filepath, "w");
+    // FILE *fp = fopen(csv_fullpath_char, "w");
     // if (!fp) {
-    //     printf("Unable to open output file %s\n", csv_filepath);
+    //     printf("Unable to open output file %s\n", csv_fullpath_char);
     //     exit(-1);
     // }
+
+    size_t pos = path_name.find("/");
+    pos = path_name.find("/", pos + 1);
+    path_name = path_name.substr(0, pos+1);
 
     // STARTS
     for (;;) {
@@ -172,12 +91,14 @@ int trainMode(char *csv_dir) {
             output.write(dstFrame);
         }
 
+        string final_label_str;
+        vector<float> ft;
+        cv::Point out_centroid_of_interest;
+        cv::Mat interFrame;
         // 2. If we are processing:
         if (op == getLabel) {
-            vector<float> feature_vec;
-            cv::Point out_centroid_of_interest;
-            compute_features(srcFrame, dstFrame, randomColors, maxRegions,
-                             feature_vec, out_centroid_of_interest);
+            compute_features(srcFrame, dstFrame, randomColors, maxRegions, ft,
+                             out_centroid_of_interest);
 
             if (obj != null) {  // if we are labelling
                 const char *label_name;
@@ -213,21 +134,63 @@ int trainMode(char *csv_dir) {
                 saved_img_name = getNewFileName(path_name);
                 char *image_filepath = (char *)saved_img_name.data();
 
-                // copy original path name so we dont overwrite it when appending
+                // copy original path name so we dont overwrite it when
+                // appending
                 string path_copy = path_name;
                 string full_name = path_copy.append(saved_img_name);
                 cv::imwrite(full_name, srcFrame);
 
                 // save the feature vector to csv
-                append_image_data_csv(csv_filepath, image_filepath, label_name,
-                                      feature_vec, 0);
+                append_image_data_csv(csv_fullpath_char, image_filepath,
+                                      label_name, ft, 0);
 
                 // reset object choice
                 obj = null;
             }
+        } else if (op == classify) {
+            // will draw bounding box and perc+fill, and width height ratio
+            compute_features(srcFrame, interFrame, randomColors, maxRegions, ft,
+                             out_centroid_of_interest);
+
+            // check for unknown label
+            final_label_str =
+                classifying(interFrame, dstFrame, ft, csv_fullpath_char,
+                            out_centroid_of_interest);
+
         } else {  // display frame as is
             srcFrame.copyTo(dstFrame);
         }
+
+        // if final label is unknown ask for user input
+        if (final_label_str == "unknown") {
+            // 1. get new label name
+            cout << "label the unkown object, or press q to skip labelling:";
+            cin >> final_label_str;
+            if (final_label_str == "q") {
+                cout << endl;
+                break;
+            }
+            // 2. create the full file path
+            saved_img_name = getNewFileName(path_name);
+            char *image_filepath = (char *)saved_img_name.data();
+
+            // 3. copy original path name so we dont overwrite it when
+            // appending
+            string path_copy = path_name;
+            string full_name = path_copy.append(saved_img_name);
+            cv::imwrite(full_name, srcFrame);
+
+            // 4. save the feature vector to csv
+            char *final_label_char;
+            // allocate new mem
+            final_label_char = (char *)alloca(final_label_str.size() + 1);
+            // copy str to char
+            memcpy(final_label_char, final_label_str.c_str(),
+                   final_label_str.size() + 1);
+            append_image_data_csv(csv_fullpath_char, image_filepath,
+                                  final_label_char, ft, 0);
+        }
+
         cv::imshow("Video", dstFrame);
         // 4. get key strokes
         char key = cv::waitKey(5);
@@ -236,7 +199,7 @@ int trainMode(char *csv_dir) {
             break;
         } else if (key == 'j')  // save single image to jpeg
         {
-            cout << "saving file";
+            cout << "saving file..";
             saved_img_name = getNewFileName(path_name);
             cv::imwrite(saved_img_name, dstFrame);
         } else if (key == 'r')  // record video to avi
@@ -244,8 +207,11 @@ int trainMode(char *csv_dir) {
             cout << "Recording starts.. " << endl;
             record = true;
         } else if (key == 'a') {
-            cout << "get label" << endl;
+            cout << "get label by entering key..." << endl;
             op = getLabel;
+        } else if (key == 'y') {
+            cout << "classify first before labelling..." << endl;
+            op = classify;
         } else if (key == 'b') {
             cout << "browncomb" << endl;
             obj = browncomb;

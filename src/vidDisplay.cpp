@@ -1,17 +1,15 @@
 #include <sys/stat.h>
+
 #include <iostream>
 #include <string>
+
 #include "filter.hpp"
 #include "orProcessing.hpp"
 #include "orUtil.hpp"
 #include "trainMode.hpp"
 #define PI 3.14159265;
 using namespace std;
-// to classify, argument should be a full path including the training data to
-// use
-// ./src/vidDisplay res/train/label_train.csv
-// to train or collect validation data do path to put the images and csv file
-// ./src/vidDisplay res/train/ or ./src/vidDisplay res/validate/
+
 int videoMode(char *csv_train_path) {
     cv::VideoCapture *capdev;
     // 1. Open the video device
@@ -237,7 +235,8 @@ void imageMode(char *csv_train_path) {
             compute_features(srcImage1, interImage1, randomColors, maxRegions,
                              ft, out_centroid_of_interest);
 
-            // will use the image to draw label on top after classifying using features
+            // will use the image to draw label on top after classifying using
+            // features
             classify_knn(interImage1, dstImage1, ft, csv_train_path,
                          out_centroid_of_interest);
 
@@ -249,8 +248,7 @@ void imageMode(char *csv_train_path) {
         int k = cv::waitKey(0);
 
         // 8. check keys
-        if (k == 'q')
-        {
+        if (k == 'q') {
             break;
         } else if (k == 't')  // 1. threshold
         {
@@ -303,15 +301,20 @@ int main(int argc, char *argv[]) {
     cout << "enter mode: v video, i image, t train, e evaluate" << endl;
 
     cin >> mode;
-    if (mode == 'v') {
-        videoMode(argv[1]); // train data using this path
-    } else if (mode == 'i') {
-        imageMode(argv[1]); // train data using this path
-    } else if (mode == 't') {
-        trainMode(argv[1]);  // save images and csv to this path
-    } else if(mode == 'e') {
-        evalMode(argv[1]); // train data using this path
-    } else if(mode == 'q') {
-        return (0);
+
+    while (mode != 'q') {
+        if (mode == 'v') {
+            videoMode(argv[1]);  // train data using this path
+        } else if (mode == 'i') {
+            imageMode(argv[1]);  // train data using this path
+        } else if (mode == 't') {
+            trainMode(argv[1]);  // save images and csv to this path
+        } else if (mode == 'e') {
+            evalMode(argv[1]);  // train data using this path
+        } else if (mode == 'q') {
+            return (0);
+        }
+        cout << "enter mode: v video, i image, t train, e evaluate" << endl;
+        cin >> mode;
     }
 }

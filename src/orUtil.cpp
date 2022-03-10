@@ -189,6 +189,80 @@ void get_contour_of_interest(cv::Mat binary_img,
 }
 
 
+string getNewFileName(string path_name) {
+    // create img namek
+    int fileIdx = 0;
+    string img_name = "own";
+    img_name.append(to_string(fileIdx)).append(".png");
+
+    // create full path
+    // string path_name = "res/owntrial/";
+    string path_copy = path_name;
+    path_copy.append(img_name);
+    struct stat buffer;
+    bool isFileExist = (stat(path_copy.c_str(), &buffer) == 0);
+
+    while (isFileExist) {
+        fileIdx += 1;
+        img_name = "own";
+        img_name.append(to_string(fileIdx)).append(".png");
+
+        // path_name = "res/owntrial/";
+        string path_copy = path_name;
+        path_copy.append(img_name);
+        isFileExist = (stat(path_copy.c_str(), &buffer) == 0);
+    }
+    // file does not exists retunr this name
+    return img_name;
+}
+
+
+// 5.1
+int append_image_data_csv(char *csv_filepath, char *image_filename,
+                          const char *label_name,
+                          std::vector<float> &feature_vector, int reset_file) {
+    char buffer[256];
+    char mode[8];
+    FILE *fp;
+
+    strcpy(mode, "a");
+
+    if (reset_file) {
+        strcpy(mode, "w");
+    }
+
+    fp = fopen(csv_filepath, mode);
+    if (!fp) {
+        printf("Unable to open output file %s\n", csv_filepath);
+        exit(-1);
+    }
+
+    // write the filename and the feature vector to the CSV file
+    // 1. filename
+    strcpy(buffer, image_filename);
+    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
+
+    // 2. label name
+    sprintf(buffer, ",%s", label_name);
+    std::fwrite(buffer, sizeof(char), strlen(buffer), fp);
+
+    // 3. feature vector
+    // loop through feature vector
+    for (int i = 0; i < feature_vector.size(); i++) {
+        char tmp[256];
+        // store feature vector in string 'temp' with 4 decimal point
+        sprintf(tmp, ",%.4f", feature_vector[i]);
+        // write to tmp to our file (file path)
+        std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
+    }
+
+    std::fwrite("\n", sizeof(char), 1, fp);  // EOL
+
+    fclose(fp);
+
+    return (0);
+}
+
 // 6.0
 int getstring(FILE *fp, char os[]) {
     int p = 0;
@@ -362,15 +436,15 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
         sorted_ssds_by_label.push_back(ssd_vec);
     }
 
-    // check the sorted ssd
-    cout << "\nssd by label result:" << endl;
-    for (int i = 0; i < sorted_ssds_by_label.size(); i++) {
-        cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
-        for (auto val : sorted_ssds_by_label.at(i)) {
-            cout << val << ", ";
-        }
-        cout << endl;
-    }
+    // print the sorted ssd:
+    // cout << "\nssd by label result:" << endl;
+    // for (int i = 0; i < sorted_ssds_by_label.size(); i++) {
+    //     cout << "cat=" << i << " " << unique_labels.at(i) << " ssd=";
+    //     for (auto val : sorted_ssds_by_label.at(i)) {
+    //         cout << val << ", ";
+    //     }
+    //     cout << endl;
+    // }
 }
 
 // 7.

@@ -10,6 +10,8 @@
 #ifndef ORUTIL_H
 #define ORUTIL_H
 
+#include <sys/stat.h>
+#include <iostream>
 #include <opencv2/opencv.hpp>
 #include "filter.hpp"
 using namespace std;
@@ -32,51 +34,76 @@ vector<int> get_center_coordinates(cv::Mat src);
 void print_map(map<int, double> map_to_print);
 
 /*
- * 3.4 helper function for 3.5 to get entry of smallest value in a map and double.
- * 
+ * 3.4 helper function for 3.5 to get entry of smallest value in a map and
+ * double.
+ *
  */
-pair<int, double> find_entry_with_smallest_value(map<int, double> indices_value);
+pair<int, double> find_entry_with_smallest_value(
+    map<int, double> indices_value);
 
 /*
- * 3.5 
- * Given the center of the image, a list of centroids of the regions, and 
- * a list of ids that have been filtered by area, 
+ * 3.5
+ * Given the center of the image, a list of centroids of the regions, and
+ * a list of ids that have been filtered by area,
  * get the region id with smallest distance to center of image.
  */
-int get_id_with_most_center_centroids(vector<int> &img_center, cv::Mat centroids, vector<int> ids_big_area);
-
+int get_id_with_most_center_centroids(vector<int> &img_center,
+                                      cv::Mat centroids,
+                                      vector<int> ids_big_area);
 
 /*
- * 4.1 Same as above but our centroids are obtained from opencv's findcontours function
- * that output width, height and so we can get the center area.
- * not from connectedComponent with stats as above.
- * This is a helper function for 
+ * 4.1 Same as above but our centroids are obtained from opencv's findcontours
+ * function that output width, height and so we can get the center area. not
+ * from connectedComponent with stats as above. This is a helper function for
  */
 int get_id_with_most_center_centroids_opencv(vector<int> &img_center,
                                              vector<pair<int, int>> centroids,
                                              int &region_id);
 
 /*
- * 4.2 
+ * 4.2
  * Given a list of contours get the id with the largest area.
  * This is a helper function to compute contour of interest.
  */
-int get_id_with_largest_contour_area( std::vector<vector<cv::Point>> contours);
-
+int get_id_with_largest_contour_area(std::vector<vector<cv::Point>> contours);
 
 /*
- * 4.3 
+ * 4.3
  * Given a binary image get its contour of interest.
  * This is a helper function in order to get rotated bounding box
-*/
-void get_contour_of_interest(cv::Mat binary_img, vector<cv::Point> &out_contour);
+ */
+void get_contour_of_interest(cv::Mat binary_img,
+                             vector<cv::Point> &out_contour);
 
 /*
  * 4.4 1st feature compute hu_moments (7 of them)
-*/
+ */
 void compute_log_scale_hu(vector<cv::Point> contour, double *hu_arr);
 
-vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int, int>> areas_indices, int region_num);
+vector<int> get_top_N_largest_areas_not_corner(
+    std::priority_queue<std::pair<int, int>> areas_indices, int region_num);
+
+
+
+/*
+ * 5.0 
+ */
+string getNewFileName(string path_name);
+
+/* 5.1
+  Given a filename, and image filename, and the image features, by
+  default the function will append a line of data to the CSV format
+  file.  If reset_file is true, then it will open the file in 'write'
+  mode and clear the existing contents.
+  The image filename is written to the first position in the row of
+  data. The values in image_data are all written to the file as
+  floats.
+  The function returns a non-zero value in case of an error.
+ */
+
+int append_image_data_csv(char *csv_filepath, char *image_filename,
+                          const char *label_name,
+                          std::vector<float> &feature_vector, int reset_file);
 
 
 
@@ -98,9 +125,8 @@ vector<int> get_top_N_largest_areas_not_corner(std::priority_queue<std::pair<int
   The function returns a non-zero value if something goes wrong.
  */
 int read_features_from_csv(char *src_csv, vector<char *> &result_names,
-                        vector<char *> &result_labels,
-                        vector<vector<float>> &result_fis,
-                        int echo_file);
+                           vector<char *> &result_labels,
+                           vector<vector<float>> &result_fis, int echo_file);
 
 /*
   6.1 Utility function for reading one float value from a CSV file
@@ -121,7 +147,6 @@ int getint(FILE *fp, int *v);
  */
 int getstring(FILE *fp, char os[]);
 
-
 /*
    6.4 Given all the labels for all the sum squared distance,
    group them by the object label
@@ -132,44 +157,38 @@ void get_vectors_of_ssd_by_label(vector<char *> &ssd_labels,
                                  vector<string> &unique_labels);
 
 /*
- * 7.0 compute standard deviate of each feature element (there will be 9 sds 
+ * 7.0 compute standard deviate of each feature element (there will be 9 sds
  *  since we have 9 feature type)
-*/
+ */
 
 vector<float> compute_standevs(vector<vector<float>> fis);
 
-
 /*
  * 7.1 compute sclaed euclidean distance
-*/
+ */
 float compute_scaled_ssd(vector<float> &ft, vector<float> &fi,
                          vector<float> &standevs);
 
-
-
 /*
  * 8.0 util function to create confusion matrix of zeros
-*/
+ */
 void create_conf_matrix_zero(vector<vector<int>> &conf_matrix, int size);
-
 
 /*
  * 8.1 util function print matrix
-*/
+ */
 void print_conf_matrix(vector<vector<int>> &conf_matrix);
-
 
 /*
  * 8.2 util function to append confusion vector of one object to a csv
-*/
+ */
 int append_confusion_vector_to_csv(const char *csv_filepath, char *object_name,
                                    vector<int> &confusion_vector,
                                    int reset_file);
 
 /*
  * 8.3 util function to append the top label to csv
-*/
+ */
 int append_label_vector_to_csv(const char *csv_filepath,
-                               vector<char *> object_names, int reset_file) ;
+                               vector<char *> object_names, int reset_file);
 #endif
-

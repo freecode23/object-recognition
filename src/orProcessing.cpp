@@ -408,7 +408,7 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
 
     read_features_from_csv(fis_csv_dir, names, labels, fis, 0);
     int i = 0;
-    // check reading correct files
+    // print to check reading correct files
     // for(vector<float> fi : fis){
     //     cout << i <<" " << fi.at(8) << " ";
     //     cout << " imgName="  << names.at(i) << " ";
@@ -420,11 +420,12 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
     i = 0;
     vector<float> standevs = compute_standevs(fis);
     vector<float> scaled_ssds;
-    cout << "ft=";
-    for (float fval : ft) {
-        cout << fval << " ";
-    }
-    cout << endl;
+    // print the features
+    // cout << "ft=";
+    // for (float fval : ft) {
+    //     cout << fval << " ";
+    // }
+    // cout << endl;
     for (vector<float> fi : fis) {  // for each image data in database
         // calculate its distance from ft
         float scaled_ssd = compute_scaled_ssd(ft, fi, standevs);
@@ -435,12 +436,16 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
     // get min of scaled ssd
     double min_ele_idx = min_element(scaled_ssds.begin(), scaled_ssds.end()) -
                          scaled_ssds.begin();
-    // cout << "index: " << min_ele_idx << " " << labels.at(min_ele_idx) <<
-    // endl;
 
+    string final_label = labels.at(min_ele_idx);
+    float min_dist = *min_element(scaled_ssds.begin(), scaled_ssds.end());
+    if (min_dist > 0.0045) {
+        final_label = "unknown";
+    }
+    // cout << "final label: " << final_label; 
     src.copyTo(dst);
     cv::putText(
-        dst, labels.at(min_ele_idx),
+        dst, final_label,
         cv::Point(centroid_of_interest.x + 80,
                   centroid_of_interest.y +
                       50),  // Coordinates (Bottom-left corner - give space of
@@ -451,7 +456,7 @@ string classifying(cv::Mat &src, cv::Mat &dst, vector<float> ft,
         1,                        // Line Thickness
         cv::LINE_4);
 
-    return labels.at(min_ele_idx);  // predicted label
+    return final_label;  // predicted label
 }
 
 /*
@@ -508,6 +513,9 @@ string classify_knn(cv::Mat &src, cv::Mat &dst, vector<float> &ft,
     string final_label = unique_labels.at(
         std::min_element(sum_smallest_n.begin(), sum_smallest_n.end()) -
         sum_smallest_n.begin());
+
+    float smallest_sum =
+        *min_element(sum_smallest_n.begin(), sum_smallest_n.end());
 
     // 6. draw
     src.copyTo(dst);
@@ -581,12 +589,13 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
     // 2. create vector of object
     vector<char *> objects;
     for (auto object_index : objects_indices) {
-        // convert string to char* so we can append to csv
+        // 2.1 convert string to char* so we can append to csv
         string obj_str = object_index.first;
         char *object_char;
-        object_char = (char *)alloca(obj_str.size() + 1);  // allocate new mem
-        memcpy(object_char, obj_str.c_str(),
-               obj_str.size() + 1);  // copy str to char
+        // allocate new mem
+        object_char = (char *)alloca(obj_str.size() + 1);  
+        // copy str to char
+        memcpy(object_char, obj_str.c_str(), obj_str.size() + 1);
         objects.push_back(object_char);
     }
 
@@ -660,9 +669,9 @@ void evaluate(char *validate_imgs_path, char *csv_train_path,
                     objects_indices.find(actual_label)->second;
                 int conf_mat_pred_idx =
                     objects_indices.find(pred_label)->second;
-                cout << pred_img_name << " pred=" << conf_mat_pred_idx << " " << pred_label
-                     << ", act=" << conf_mat_actual_idx << " " << actual_label
-                     << endl;
+                cout << pred_img_name << " pred=" << conf_mat_pred_idx << " "
+                     << pred_label << ", act=" << conf_mat_actual_idx << " "
+                     << actual_label << endl;
 
                 // increment at conf. matrix index
                 conf_matrix.at(conf_mat_pred_idx).at(conf_mat_actual_idx) += 1;
