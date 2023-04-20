@@ -295,7 +295,7 @@ void segmentation(cv::Mat &src, int max_regions, cv::Mat &out_label,
     // get single id of interest
     out_id_of_interest = get_id_with_most_center_centroids(
         img_center, centroids, out_ids_to_keep);
-    
+
     out_centroid_of_interest =
         cv::Point(centroids.at<double>(out_id_of_interest, 0),
                   centroids.at<double>(out_id_of_interest, 1));
@@ -386,30 +386,30 @@ void compute_features(cv::Mat &src, cv::Mat &dst,
     }
 
     // 6.2
-    // Using cv::fitEllipse
-    // cv::RotatedRect rot_rect_ell = cv::fitEllipse(contour_of_interest);
-    // cv::Point2f vertices2[4];
-    // rot_rect2.points(vertices2);  // get the points from rectangle and output
-    //                               // as vertices points
 
-    // -- axis using ellipse
+    // draw axis using moments
+    cv::Moments moments = cv::moments(contour_of_interest, true);
+    double m_11 = moments.mu11;
+    double m_20 = moments.mu20;
+    double m_02 = moments.mu02;
+    double pi = 3.14159265359;
+    double alpha = alpha * (pi / 180);
+    alpha = atan2(2 * m_11, m_20 - m_02) / 2;
     // major
-    // float alpha = rot_rect_ell.angle;
-    // double pi = 3.14159265359;
-    // alpha = alpha * (pi / 180);
-    // cout << alpha << endl;
+    double x2 = out_centroid_of_interest.x + (100 * cos(alpha));
+    double y2 = out_centroid_of_interest.y + (100 * sin(alpha));
+    cv::arrowedLine(dst, out_centroid_of_interest, cv::Point(x2, y2),
+                    cv::Scalar(0, 0, 255), 1);
 
-    // float X2 = out_centroid_of_interest.x + (100 * cos(alpha));
-    // float Y2 = out_centroid_of_interest.y + (100 * sin(alpha));
-    // cv::arrowedLine(dst, out_centroid_of_interest, cv::Point(X2, Y2),
-    //                 cv::Scalar(0, 0, 255), 1);
+    // minor
+    x2 = out_centroid_of_interest.x + (100 * sin(alpha) * -1);
+    y2 = out_centroid_of_interest.y + (100 * cos(alpha));
+    cv::arrowedLine(dst, out_centroid_of_interest, cv::Point(x2, y2),
+                    cv::Scalar(0, 0, 255), 1);
 
-    // // minor
-    // float x2 = out_centroid_of_interest.x + (100 * sin(alpha) * -1);
-    // float y2 = out_centroid_of_interest.y + (100 * cos(alpha));
-    // cv::arrowedLine(dst, out_centroid_of_interest, cv::Point(x2, y2),
-    //                 cv::Scalar(0, 0, 255), 1);
- 
+    // 6.3 draw boxes
+
+>>>>>>> c6c76094cf7d3da5f49ebbf8b9763e6260998cad
 }
 /*
  * task 6
